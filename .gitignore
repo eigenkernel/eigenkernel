@@ -1,0 +1,23 @@
+# Objects
+*.o
+
+# Executables
+eigbench
+*.out
+job*.sh*
+
+# Data
+*.dat
+
+# Archives
+*.tar
+*.gz
+*.zip
+*.a
+
+# Misc
+Makefile.in
+*.mod
+*.log
+*\#*
+*~
