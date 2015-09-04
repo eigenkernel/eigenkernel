@@ -6,7 +6,7 @@ Here 'hybrid solver' means combination of high-performance routines from the dis
 
 EigenKernel also works as a mini-application (stand alone eigenvalue problem solver), named EIgenBench. This note shows usage of EigenBench shortly.
 
-EigenBench requires input matrix data in [the MatrixMarket file format](http://math.nist.gov/MatrixMarket/). Sample data files are stored in the `matrix/` directory.
+EigenBench requires input matrix data in [the MatrixMarket file format](http://math.nist.gov/MatrixMarket/). Sample data files are stored in the `matrix/` directory. These are part of [ELSES matrix library](http://www.elses.jp/matrix/).
 
 ## Quick start
 You can build EigenBench only with ScaLAPACK (without ELPA and EigenExa).
