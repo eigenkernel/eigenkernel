@@ -77,7 +77,7 @@ Names of available solvers are listed below. `general_scalapack` and `general_el
 You can see a help message for commandline options by `eigbench -h`.
 
 - `-n <num>`  This option can be used only with 'selecting' solvers. Compute only &lt;num&gt; eigenpairs in ascending order of their eigenvalues.
-- `-p <num1>,<num2>`  Specify index range of eigenvectors to be output. No eigenvectors are output in default. Eigenvectors are output from all the MPI processes evenly.
+- `-p <num1>[-<num2>][,<num3>[-<num4>]]...`  Specify index ranges of eigenvectors to be output. No eigenvectors are output in default. Eigenvectors are output from all the MPI processes evenly.
 - `-c <num>`  Calculate residual norm of eigenvectors whose index is from 1 to &lt;num&gt; (included). If num == -1, EigenBench calculates all the eigenvectors. No eigenvectors are checked in default.
 - `-t <num1>,<num2>`  Calculate orthogonality of eigenvectors whose index is from &lt;num1&gt; to &lt;num2&gt; (included). No eigenvectors are checked in default.
 - `-o <file>`  Set output file name for eigenvalues to &lt;file&gt;.

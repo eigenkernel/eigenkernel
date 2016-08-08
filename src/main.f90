@@ -119,7 +119,7 @@ program eigen_test
     close(iunit)
   end if
 
-  if (arg%printed_vecs_start /= 0) then
+  if (arg%num_printed_vecs_ranges /= 0) then
     call print_eigenvectors(arg, eigenpairs)
   end if
 

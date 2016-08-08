@@ -7,6 +7,8 @@ module command_argument
   use processes, only : check_master, terminate
   implicit none
 
+  integer, parameter :: kMaxNumPrintedVecsRanges = 100
+
   ! Matrix Market format
   type matrix_info
     character(len=10) :: rep
@@ -36,8 +38,8 @@ module command_argument
     integer :: ortho_check_index_start = 0
     integer :: ortho_check_index_end = 0
     character(len=256) :: eigenvector_dir = '.'
-    integer :: printed_vecs_start = 0 ! Zero means do not print eigenvectors
-    integer :: printed_vecs_end = 0
+    integer :: num_printed_vecs_ranges = 0 ! Zero means do not print eigenvectors
+    integer :: printed_vecs_ranges(2, kMaxNumPrintedVecsRanges)
     integer :: verbose_level = 0
   end type argument
 
@@ -119,7 +121,7 @@ contains
   subroutine validate_argument(arg)
     type(argument), intent(in) :: arg
 
-    integer :: dim
+    integer :: dim, i
     logical :: is_size_valid, is_solver_valid, is_n_vec_valid
 
     ! Is matrix size appropriate?
@@ -197,11 +199,13 @@ contains
            "' does not support partial eigenvalue computation", 1)
     end if
 
-    if (arg%printed_vecs_start < 0 .or. arg%printed_vecs_end < 0 .or. &
-         arg%printed_vecs_end > arg%n_vec .or. &
-         arg%printed_vecs_start > arg%printed_vecs_end) then
-      call terminate('validate_argument: Specified numbers with -p option are not valid', 1)
-    end if
+    do i = 1, arg%num_printed_vecs_ranges
+      if (arg%printed_vecs_ranges(1, i) < 0 .or. arg%printed_vecs_ranges(2, i) < 0 .or. &
+           arg%printed_vecs_ranges(2, i) > arg%n_vec .or. &
+           arg%printed_vecs_ranges(1, i) > arg%printed_vecs_ranges(2, i)) then
+        call terminate('validate_argument: Specified numbers with -p option are not valid', 1)
+      end if
+    end do
 
     if (arg%n_check_vec < 0 .or. arg%n_check_vec > arg%n_vec) then
       call terminate('validate_argument: Specified numbers with -c option are not valid', 1)
@@ -264,6 +268,53 @@ contains
   end function required_memory_parallel_generalized
 
 
+  subroutine arg_str_to_printed_vecs_ranges(arg_str, num_printed_vecs_ranges, printed_vecs_ranges)
+    character(len=*), intent(in) :: arg_str
+    integer, intent(out) :: num_printed_vecs_ranges, printed_vecs_ranges(2, kMaxNumPrintedVecsRanges)
+
+    integer :: i, j, k1, k2
+    num_printed_vecs_ranges = 1
+    k1 = 1
+    do
+      i = index(arg_str(k1 :), ',')
+      if (i == 0) then
+        k2 = len_trim(arg_str)
+      elseif (i == 1) then
+        call terminate('arg_str_to_printed_vecs_ranges: invalid comma placement', 1)
+      else
+        k2 = k1 + i - 2
+      end if
+
+      j = index(arg_str(k1 : k2), '-')
+      if (j == 0) then
+        read (arg_str(k1 : k2), *) printed_vecs_ranges(1, num_printed_vecs_ranges)
+        printed_vecs_ranges(2, num_printed_vecs_ranges) = printed_vecs_ranges(1, num_printed_vecs_ranges)
+      elseif (j == 1) then
+        call terminate('arg_str_to_printed_vecs_ranges: invalid hyphen placement', 1)
+      else
+        read (arg_str(k1 : k1 + j - 2), *) printed_vecs_ranges(1, num_printed_vecs_ranges)
+        read (arg_str(k1 + j : k2), *) printed_vecs_ranges(2, num_printed_vecs_ranges)
+      end if
+
+      k1 = k2 + 2
+      if (k1 >= len_trim(arg_str)) then
+        exit
+      end if
+      num_printed_vecs_ranges = num_printed_vecs_ranges + 1
+      if (num_printed_vecs_ranges > kMaxNumPrintedVecsRanges) then
+        print *, 'arg_str_to_printed_vecs_ranges: too many ranges ', num_printed_vecs_ranges, &
+             ' (> ', kMaxNumPrintedVecsRanges, ')'
+        call terminate('arg_str_to_printed_vecs_ranges: too many ranges', 1)
+      end if
+    end do
+    print *, 'arg_str_to_printed_vecs_ranges: num_printed_vecs_ranges ', num_printed_vecs_ranges
+    do i = 1, num_printed_vecs_ranges
+      print *, 'arg_str_to_printed_vecs_ranges: range ', i, ' : ', &
+           printed_vecs_ranges(1, i), ' - ', printed_vecs_ranges(2, i)
+    end do
+  end subroutine arg_str_to_printed_vecs_ranges
+
+
   double precision function required_memory(arg)
     type(argument), intent(in) :: arg
 
@@ -322,13 +373,7 @@ contains
           argi = argi + 1
         case ('p')
           call get_command_argument(argi + 1, arg_str)
-          i = index(arg_str, ',')
-          if (i == 0) then
-            call terminate("read_command_argument: comma needed for printed eigenvector range specification", 1)
-          else
-            read (arg_str(1 : i - 1), *) arg%printed_vecs_start
-            read (arg_str(i + 1 :), *) arg%printed_vecs_end
-          end if
+          call arg_str_to_printed_vecs_ranges(arg_str, arg%num_printed_vecs_ranges, arg%printed_vecs_ranges)
           argi = argi + 1
         case ('t')
           call get_command_argument(argi + 1, arg_str)

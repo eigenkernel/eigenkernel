@@ -175,7 +175,7 @@ contains
     type(eigenpairs_types_union) :: eigenpairs
 
     double precision :: time_start, time_end
-    integer :: len, i, digit, stat, desc(desc_size)
+    integer :: len, i, j, digit, stat, desc(desc_size)
     integer :: n_procs_row, n_procs_col, my_proc_row, my_proc_col
     integer :: print_pcol, print_prow
     character(512) :: num_str, filename
@@ -189,37 +189,39 @@ contains
     else if (eigenpairs%type_number == 2) then
       desc(:) = eigenpairs%blacs%desc(:)
       call blacs_gridinfo(desc(context_), n_procs_row, n_procs_col, my_proc_row, my_proc_col)
-      do i = arg%printed_vecs_start, arg%printed_vecs_end
-        print_pcol = indxg2p(i, desc(block_col_), 0, desc(csrc_), n_procs_col)
-        print_prow = mod(mod(i - 1, desc(block_col_) * n_procs_col), n_procs_row)
-        if (my_proc_col == print_pcol .and. my_proc_row == print_prow) then
-          write (0, '(A, F16.6, A, I0, A, I0, A, I0, A)') &
-               '[Event', mpi_wtime() - g_mpi_wtime_init, '] print eigenvector ', i, &
-               ' on process (', my_proc_row, ', ', my_proc_col, ')'
-          write (num_str, '(i0)') i
-          len = len_trim(num_str)
-          num_str(max_num_digits - len + 1 : max_num_digits) = num_str(1 : len)
-          do digit = 1, max_num_digits - len
-            num_str(digit:digit) = '0'
-          end do
-          filename = trim(arg%eigenvector_dir) // '/' // trim(num_str) // '.dat'
-          if (arg%is_binary_output) then
-            open(iunit, file=trim(filename), form="unformatted", access="sequential", &
-                 status='replace', iostat=stat)
-          else
-            open(iunit, file=trim(filename), status='replace', iostat=stat)
+      do i = 1, arg%num_printed_vecs_ranges
+        do j = arg%printed_vecs_ranges(1, i), arg%printed_vecs_ranges(2, i)
+          print_pcol = indxg2p(j, desc(block_col_), 0, desc(csrc_), n_procs_col)
+          print_prow = mod(mod(j - 1, desc(block_col_) * n_procs_col), n_procs_row)
+          if (my_proc_col == print_pcol .and. my_proc_row == print_prow) then
+            write (0, '(A, F16.6, A, I0, A, I0, A, I0, A)') &
+                 '[Event', mpi_wtime() - g_mpi_wtime_init, '] print eigenvector ', j, &
+                 ' on process (', my_proc_row, ', ', my_proc_col, ')'
+            write (num_str, '(i0)') j
+            len = len_trim(num_str)
+            num_str(max_num_digits - len + 1 : max_num_digits) = num_str(1 : len)
+            do digit = 1, max_num_digits - len
+              num_str(digit:digit) = '0'
+            end do
+            filename = trim(arg%eigenvector_dir) // '/' // trim(num_str) // '.dat'
+            if (arg%is_binary_output) then
+              open(iunit, file=trim(filename), form="unformatted", access="sequential", &
+                   status='replace', iostat=stat)
+            else
+              open(iunit, file=trim(filename), status='replace', iostat=stat)
+            end if
+            if (stat /= 0) then
+              print *, 'iostat: ', stat
+              call terminate('print_eigenvectors: cannot open ' // trim(filename), stat)
+            end if
           end if
-          if (stat /= 0) then
-            print *, 'iostat: ', stat
-            call terminate('print_eigenvectors: cannot open ' // trim(filename), stat)
+
+          call print_vector(eigenpairs%blacs%Vectors, j, desc, print_prow, print_pcol, iunit, arg%is_binary_output)
+
+          if (my_proc_col == print_pcol .and. my_proc_row == print_prow) then
+            close (iunit)
           end if
-        end if
-
-        call print_vector(eigenpairs%blacs%Vectors, i, desc, print_prow, print_pcol, iunit, arg%is_binary_output)
-
-        if (my_proc_col == print_pcol .and. my_proc_row == print_prow) then
-          close (iunit)
-        end if
+        end do
       end do
     end if
 
