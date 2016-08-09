@@ -19,7 +19,7 @@ module solver_main
 
 contains
 
-  subroutine eigen_solver(arg, matrix_A, eigenpairs, matrix_B)
+  subroutine eigen_solver(arg, matrix_A, eigenpairs, proc, matrix_B)
     use solver_lapack, only : eigen_solver_lapack
     use solver_scalapack_all, only : eigen_solver_scalapack_all, solve_with_general_scalapack
     use solver_scalapack_select, only : eigen_solver_scalapack_select
@@ -33,9 +33,9 @@ contains
     type(sparse_mat), intent(in) :: matrix_A
     type(sparse_mat), intent(in), optional :: matrix_B
     type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(process), intent(out) :: proc
 
     integer :: n, desc_A(desc_size), desc_B(desc_size)
-    type(process) :: proc
     double precision, allocatable :: matrix_A_dist(:, :), matrix_B_dist(:, :)
 
     n = arg%matrix_A_info%rows

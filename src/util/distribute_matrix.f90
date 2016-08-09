@@ -15,33 +15,63 @@ module distribute_matrix
 
 contains
 
-  subroutine get_ipratios(mat, desc, ipratios)
-    double precision, intent(in) :: mat(:, :)
-    integer, intent(in) :: desc(desc_size)
-    double precision, intent(out) :: ipratios(desc(cols_))
+  subroutine get_ipratios(proc, V, V_desc, ipratios, S_sparse)
+    type(process), intent(in) :: proc
+    real(8), intent(in) :: V(:, :)
+    integer, intent(in) :: V_desc(desc_size)
+    real(8), intent(out) :: ipratios(V_desc(cols_))
+    type(sparse_mat), intent(in), optional :: S_sparse
 
     integer :: i, j, n_procs_row, n_procs_col, my_proc_row, my_proc_col
-    double precision :: elem, sum_power4(desc(cols_)), sum_power2(desc(cols_))
+    real(8) :: elem, sum_power4(V_desc(cols_)), sum_power2(V_desc(cols_))
     integer :: indxg2p
+    ! For overlap_mode.
+    integer :: m, n
+    real(8), allocatable :: S(:, :)
+    integer :: S_desc(desc_size)
+    real(8), allocatable :: SV(:, :)
+    real(8) :: elem2
+    logical :: is_overlap_mode
 
-    call blacs_gridinfo(desc(context_), n_procs_row, n_procs_col, my_proc_row, my_proc_col)
+    is_overlap_mode = present(S_sparse)
+    if (is_overlap_mode) then
+      call setup_distributed_matrix('S', proc, S_sparse%size, S_sparse%size, S_desc, S)
+      call distribute_global_sparse_matrix(S_sparse, S_desc, S)
+      if (S_desc(rows_) /= S_desc(cols_) .or. S_desc(cols_) /= V_desc(rows_)) then
+        call terminate('inconsistent matrix dimension', 1)
+      end if
+      m = size(V, 1)
+      n = size(V, 2)
+      allocate(SV(m, n))
+      call pdgemm('No', 'No', S_desc(rows_), V_desc(cols_), S_desc(cols_), 1d0, S, 1, 1, S_desc, &
+           V, 1, 1, V_desc, 0d0, SV, 1, 1, V_desc)
+    end if
+
+    call blacs_gridinfo(V_desc(context_), n_procs_row, n_procs_col, my_proc_row, my_proc_col)
     sum_power4(:) = 0d0
     sum_power2(:) = 0d0
-    do j = 1, desc(cols_)
-      if (indxg2p(j, desc(block_col_), 0, 0, n_procs_col) == my_proc_col) then
-        do i = 1, desc(rows_)
-          if (indxg2p(i, desc(block_row_), 0, 0, n_procs_row) == my_proc_row) then
-            call pdelget('', '', elem, mat, i, j, desc)
+    do j = 1, V_desc(cols_)
+      if (indxg2p(j, V_desc(block_col_), 0, 0, n_procs_col) == my_proc_col) then
+        do i = 1, V_desc(rows_)
+          if (indxg2p(i, V_desc(block_row_), 0, 0, n_procs_row) == my_proc_row) then
+            call pdelget('', '', elem, V, i, j, V_desc)
+            if (is_overlap_mode) then
+              call pdelget('', '', elem2, SV, i, j, V_desc)
+            end if
             sum_power4(j) = sum_power4(j) + elem ** 4d0
-            sum_power2(j) = sum_power2(j) + elem ** 2d0
+            if (is_overlap_mode) then
+              sum_power2(j) = sum_power2(j) + elem * elem2
+            else
+              sum_power2(j) = sum_power2(j) + elem ** 2d0
+            end if
           end if
         end do
       end if
     end do
-    call dgsum2d(desc(context_), 'All', ' ', 1, desc(cols_), sum_power4, 1, -1, -1)
-    call dgsum2d(desc(context_), 'All', ' ', 1, desc(cols_), sum_power2, 1, -1, -1)
+    call dgsum2d(V_desc(context_), 'All', ' ', 1, V_desc(cols_), sum_power4, 1, -1, -1)
+    call dgsum2d(V_desc(context_), 'All', ' ', 1, V_desc(cols_), sum_power2, 1, -1, -1)
     ipratios(:) = 0d0
-    do j = 1, desc(cols_)  ! Redundant computation.
+    do j = 1, V_desc(cols_)  ! Redundant computation.
       ipratios(j) = sum_power4(j) / (sum_power2(j) ** 2d0)
     end do
   end subroutine get_ipratios

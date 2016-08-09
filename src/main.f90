@@ -24,6 +24,7 @@ program eigen_test
   integer, parameter :: iunit = 10
   double precision :: time_start, time_start_part, time_end
   type(fson_value), pointer :: output
+  type(process) :: proc
 
   call mpi_init(ierr)
   if (ierr /= 0) then
@@ -97,9 +98,9 @@ program eigen_test
 
   if (check_master()) print '(/, "----- Solver Call -----")'
   if (arg%is_generalized_problem) then
-    call eigen_solver(arg, matrix_A, eigenpairs, matrix_B)
+    call eigen_solver(arg, matrix_A, eigenpairs, proc, matrix_B)
   else
-    call eigen_solver(arg, matrix_A, eigenpairs)
+    call eigen_solver(arg, matrix_A, eigenpairs, proc)
   end if
 
   time_end = mpi_wtime()
@@ -128,7 +129,11 @@ program eigen_test
   time_start_part = time_end
 
   allocate(ipratios(eigenpairs%blacs%desc(cols_)))
-  call get_ipratios(eigenpairs%blacs%Vectors, eigenpairs%blacs%desc, ipratios)
+  if (arg%is_generalized_problem) then
+    call get_ipratios(proc, eigenpairs%blacs%Vectors, eigenpairs%blacs%desc, ipratios, matrix_B)
+  else
+    call get_ipratios(proc, eigenpairs%blacs%Vectors, eigenpairs%blacs%desc, ipratios)
+  end if
   if (check_master()) then
     open(iunit, file=arg%ipratios_filename, status='unknown')
     do j = 1, eigenpairs%blacs%desc(cols_)
