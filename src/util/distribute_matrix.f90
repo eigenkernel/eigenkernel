@@ -32,6 +32,7 @@ contains
     real(8), allocatable :: SV(:, :)
     real(8) :: elem2
     logical :: is_overlap_mode
+    character :: scope = 'A', topology = ' '
 
     is_overlap_mode = present(S_sparse)
     if (is_overlap_mode) then
@@ -68,8 +69,8 @@ contains
         end do
       end if
     end do
-    call dgsum2d(V_desc(context_), 'All', ' ', 1, V_desc(cols_), sum_power4, 1, -1, -1)
-    call dgsum2d(V_desc(context_), 'All', ' ', 1, V_desc(cols_), sum_power2, 1, -1, -1)
+    call dgsum2d(V_desc(context_), scope, topology, 1, V_desc(cols_), sum_power4, 1, -1, -1)
+    call dgsum2d(V_desc(context_), scope, topology, 1, V_desc(cols_), sum_power2, 1, -1, -1)
     ipratios(:) = 0d0
     do j = 1, V_desc(cols_)  ! Redundant computation.
       ipratios(j) = sum_power4(j) / (sum_power2(j) ** 2d0)
