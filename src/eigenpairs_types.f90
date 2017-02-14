@@ -1,18 +1,18 @@
-module eigenpairs_types
-  type eigenpairs_local ! type number = 1
+module ek_eigenpairs_types_m
+  type ek_eigenpairs_local_t ! type number = 1
     double precision, allocatable :: values(:)
     double precision, allocatable :: vectors(:, :)
-  end type eigenpairs_local
+  end type ek_eigenpairs_local_t
 
-  type eigenpairs_blacs ! type number = 2
+  type ek_eigenpairs_blacs_t ! type number = 2
     double precision, allocatable :: values(:)
     integer :: desc(9)
     double precision, allocatable :: Vectors(:, :)
-  end type eigenpairs_blacs
+  end type ek_eigenpairs_blacs_t
 
-  type eigenpairs_types_union
+  type ek_eigenpairs_types_union_t
     integer :: type_number
-    type(eigenpairs_local) :: local
-    type(eigenpairs_blacs) :: blacs
-  end type eigenpairs_types_union
-end module eigenpairs_types
+    type(ek_eigenpairs_local_t) :: local
+    type(ek_eigenpairs_blacs_t) :: blacs
+  end type ek_eigenpairs_types_union_t
+end module ek_eigenpairs_types_m

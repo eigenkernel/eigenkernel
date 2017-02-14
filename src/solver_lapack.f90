@@ -1,4 +1,4 @@
-module solver_lapack
+module ek_solver_lapack_m
   implicit none
 
   private
@@ -7,12 +7,12 @@ module solver_lapack
 contains
 
   subroutine eigen_solver_lapack(mat, eigenpairs)
-   use matrix_io, only : sparse_mat
-   use distribute_matrix, only : convert_sparse_matrix_to_dense
-   use eigenpairs_types, only : eigenpairs_types_union
+   use ek_matrix_io_m, only : ek_sparse_mat_t
+   use ek_distribute_matrix_m, only : convert_sparse_matrix_to_dense
+   use ek_eigenpairs_types_m, only : ek_eigenpairs_types_union_t
 
-   type(sparse_mat), target, intent(in) :: mat
-   type(eigenpairs_types_union), intent(out) :: eigenpairs
+   type(ek_sparse_mat_t), target, intent(in) :: mat
+   type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
    integer :: n, lda, lwork, info
 
@@ -31,4 +31,4 @@ contains
    call dsyev("V", "U", n, eigenpairs%local%vectors, lda, &
         eigenpairs%local%values, work, lwork, info)
   end subroutine eigen_solver_lapack
-end module solver_lapack
+end module ek_solver_lapack_m

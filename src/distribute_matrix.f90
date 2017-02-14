@@ -1,11 +1,11 @@
-module distribute_matrix
+module ek_distribute_matrix_m
   use mpi
-  use command_argument, only : matrix_info
-  use descriptor_parameters
-  use event_logger_m, only : add_event
-  use global_variables, only : g_block_size
-  use matrix_io, only : sparse_mat
-  use processes, only : check_master, process, layout_procs, terminate
+  use ek_command_argument_m, only : ek_matrix_info_t
+  use ek_descriptor_parameters_m
+  use ek_event_logger_m, only : add_event
+  use ek_global_variables_m, only : g_block_size
+  use ek_matrix_io_m, only : ek_sparse_mat_t
+  use ek_processes_m, only : check_master, ek_process_t, layout_procs, terminate
   implicit none
 
   public :: get_local_cols, setup_distributed_matrix, &
@@ -16,11 +16,11 @@ module distribute_matrix
 contains
 
   subroutine get_ipratios(proc, V, V_desc, ipratios, S_sparse)
-    type(process), intent(in) :: proc
+    type(ek_process_t), intent(in) :: proc
     real(8), intent(in) :: V(:, :)
     integer, intent(in) :: V_desc(desc_size)
     real(8), intent(out) :: ipratios(V_desc(cols_))
-    type(sparse_mat), intent(in), optional :: S_sparse
+    type(ek_sparse_mat_t), intent(in), optional :: S_sparse
 
     integer :: i, j, n_procs_row, n_procs_col, my_proc_row, my_proc_col
     real(8) :: elem, sum_power4(V_desc(cols_)), sum_power2(V_desc(cols_))
@@ -79,7 +79,7 @@ contains
 
 
   integer function get_local_cols(proc, desc)
-    type(process), intent(in) :: proc
+    type(ek_process_t), intent(in) :: proc
     integer, intent(in) :: desc(desc_size)
 
     integer :: numroc
@@ -91,7 +91,7 @@ contains
 
   subroutine setup_distributed_matrix(name, proc, rows, cols, desc, mat, block_size)
     character(*), intent(in) :: name
-    type(process), intent(in) :: proc
+    type(ek_process_t), intent(in) :: proc
     integer, intent(in) :: rows, cols
     integer, intent(out) :: desc(desc_size)
     double precision, intent(out), allocatable :: mat(:, :)
@@ -149,9 +149,9 @@ contains
 
 
   subroutine convert_sparse_matrix_to_dense(mat_in, mat)
-    use matrix_io, only : sparse_mat
+    use ek_matrix_io_m, only : ek_sparse_mat_t
 
-    type(sparse_mat), intent(in) :: mat_in
+    type(ek_sparse_mat_t), intent(in) :: mat_in
     double precision, intent(out), allocatable :: mat(:,:)
 
     integer :: k, i, j, n, ierr
@@ -389,7 +389,7 @@ contains
 
 
   subroutine distribute_global_sparse_matrix(mat_in, desc, mat)
-    type(sparse_mat), intent(in) :: mat_in
+    type(ek_sparse_mat_t), intent(in) :: mat_in
     integer, intent(in) :: desc(desc_size)
     double precision, intent(out) :: mat(:,:)
 
@@ -470,8 +470,8 @@ contains
 
   subroutine bcast_sparse_matrix(root, mat_info, mat)
     integer, intent(in) :: root
-    type(matrix_info), intent(inout) :: mat_info
-    type(sparse_mat), intent(inout) :: mat
+    type(ek_matrix_info_t), intent(inout) :: mat_info
+    type(ek_sparse_mat_t), intent(inout) :: mat
 
     integer :: my_rank, ierr
     double precision :: time_start, time_start_part, time_end
@@ -511,4 +511,4 @@ contains
     call add_event('bcast_sparse_matrix:bcast_value', time_end - time_start_part)
     call add_event('bcast_sparse_matrix', time_end - time_start)
   end subroutine bcast_sparse_matrix
-end module distribute_matrix
+end module ek_distribute_matrix_m

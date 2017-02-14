@@ -1,21 +1,21 @@
-module processes
+module ek_processes_m
   use mpi
-  use event_logger_m
+  use ek_event_logger_m
   implicit none
 
-  type process
+  type ek_process_t
     integer :: my_rank, n_procs, context
     integer :: n_procs_row, n_procs_col, my_proc_row, my_proc_col
-  end type process
+  end type ek_process_t
 
   private
-  public :: process, setup_distribution, get_num_procs, layout_procs, &
+  public :: ek_process_t, setup_distribution, get_num_procs, layout_procs, &
        print_map_of_grid_to_processes, check_master, terminate
 
 contains
 
   subroutine setup_distribution(proc)
-    type(process), intent(out) :: proc
+    type(ek_process_t), intent(out) :: proc
 
     call blacs_pinfo(proc%my_rank, proc%n_procs)
     call layout_procs(proc%n_procs, proc%n_procs_row, proc%n_procs_col)
@@ -137,4 +137,4 @@ contains
     end if
     call mpi_abort(mpi_comm_world, error_code, ierr)
   end subroutine terminate
-end module processes
+end module ek_processes_m

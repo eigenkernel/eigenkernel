@@ -1,8 +1,8 @@
-module solver_eigenexa
-  use distribute_matrix, only : desc_size
-  use processes, only : process, terminate
-  use matrix_io, only : sparse_mat
-  use eigenpairs_types, only : eigenpairs_types_union
+module ek_solver_eigenexa_m
+  use ek_distribute_matrix_m, only : desc_size
+  use ek_processes_m, only : ek_process_t, terminate
+  use ek_matrix_io_m, only : ek_sparse_mat_t
+  use ek_eigenpairs_types_m, only : ek_eigenpairs_types_union_t
 
   implicit none
 
@@ -17,7 +17,7 @@ contains
     integer, intent(in) :: dim
     integer, intent(out) ::desc_A(desc_size)
     double precision, allocatable, intent(out) :: matrix_A(:, :)
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     call terminate('setup_distributed_matrix_for_eigenexa: EigenExa is not supported in this build', 1)
   end subroutine setup_distributed_matrix_for_eigenexa
@@ -26,7 +26,7 @@ contains
   subroutine eigen_solver_eigenexa(mat, desc_mat, n_vec, eigenpairs, uplo)
     double precision, intent(inout) :: mat(:, :)
     integer, intent(in) :: desc_mat(desc_size), n_vec
-    type(eigenpairs_types_union), intent(inout) :: eigenpairs
+    type(ek_eigenpairs_types_union_t), intent(inout) :: eigenpairs
     character, intent(in), optional :: uplo
 
     call terminate('eigen_solver_eigenexa: EigenExa is not supported in this build', 1)
@@ -36,7 +36,7 @@ contains
   subroutine eigen_solver_eigenk(mat, desc_mat, n_vec, eigenpairs, uplo)
     double precision, intent(inout) :: mat(:, :)
     integer, intent(in) :: desc_mat(desc_size), n_vec
-    type(eigenpairs_types_union), intent(inout) :: eigenpairs
+    type(ek_eigenpairs_types_union_t), intent(inout) :: eigenpairs
     character, intent(in), optional :: uplo
 
     call terminate('eigen_solver_eigenk: EigenExa is not supported in this build', 1)
@@ -45,10 +45,10 @@ contains
 
   subroutine solve_with_general_scalapack_eigenexa(n, proc, matrix_A, eigenpairs, matrix_B)
     integer, intent(in) :: n
-    type(process), intent(in) :: proc
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in) :: matrix_B
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in) :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     call terminate('solve_with_general_scalapack_eigenexa: EigenExa is not supported in this build', 1)
   end subroutine solve_with_general_scalapack_eigenexa
@@ -56,10 +56,10 @@ contains
 
   subroutine solve_with_general_scalapack_eigenk(n, proc, matrix_A, eigenpairs, matrix_B)
     integer, intent(in) :: n
-    type(process), intent(in) :: proc
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in) :: matrix_B
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in) :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     call terminate('solve_with_general_scalapack_eigenk: EigenExa is not supported in this build', 1)
   end subroutine solve_with_general_scalapack_eigenk
@@ -67,11 +67,11 @@ contains
 
   subroutine solve_with_general_scalapacknew_eigenk(n, proc, matrix_A, eigenpairs, matrix_B)
     integer, intent(in) :: n
-    type(process), intent(in) :: proc
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in) :: matrix_B
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in) :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     call terminate('solve_with_general_scalapacknew_eigenk: EigenExa is not supported in this build', 1)
   end subroutine solve_with_general_scalapacknew_eigenk
-end module solver_eigenexa
+end module ek_solver_eigenexa_m

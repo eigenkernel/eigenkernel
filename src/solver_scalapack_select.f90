@@ -1,10 +1,10 @@
-module solver_scalapack_select
+module ek_solver_scalapack_select_m
   use mpi
-  use descriptor_parameters
-  use distribute_matrix, only : &
+  use ek_descriptor_parameters_m
+  use ek_distribute_matrix_m, only : &
        get_local_cols, gather_matrix, allgather_row_wise, setup_distributed_matrix
-  use eigenpairs_types, only : eigenpairs_types_union
-  use processes, only : process
+  use ek_eigenpairs_types_m, only : ek_eigenpairs_types_union_t
+  use ek_processes_m, only : ek_process_t
   implicit none
 
   private
@@ -12,10 +12,10 @@ module solver_scalapack_select
 
 contains
   subroutine eigen_solver_scalapack_select(proc, desc_A, A, n_vec, eigenpairs)
-    type(process) :: proc
+    type(ek_process_t) :: proc
     integer, intent(in) :: desc_A(9), n_vec
     double precision, intent(in) :: A(:, :)
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     integer :: info
     integer :: dim, work_size, iwork_size
@@ -133,4 +133,4 @@ contains
       end do
     end if
   end subroutine pdsyevx_report
-end module solver_scalapack_select
+end module ek_solver_scalapack_select_m

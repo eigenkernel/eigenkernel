@@ -1,17 +1,17 @@
-module solver_elpa_eigenexa
+module ek_solver_elpa_eigenexa_m
   use eigen_libs
   use ELPA1
   use ELPA2
   use mpi
-  use global_variables, only : g_block_size
-  use distribute_matrix, only : process, setup_distributed_matrix, &
+  use ek_global_variables_m, only : g_block_size
+  use ek_distribute_matrix_m, only : process, setup_distributed_matrix, &
        gather_matrix, distribute_global_sparse_matrix
-  use descriptor_parameters
-  use eigenpairs_types, only : eigenpairs_types_union
-  use event_logger_m, only : add_event
-  use matrix_io, only : sparse_mat
-  use processes, only : check_master, setup_distribution, terminate
-  use solver_eigenexa
+  use ek_descriptor_parameters_m
+  use ek_eigenpairs_types_m, only : eigenpairs_types_union
+  use ek_event_logger_m, only : add_event
+  use ek_matrix_io_m, only : sparse_mat
+  use ek_processes_m, only : check_master, setup_distribution, terminate
+  use ek_solver_eigenexa_m
 
   implicit none
   private
@@ -314,4 +314,4 @@ contains
     call add_event('solve_with_general_elpa_eigenk:pdtrmm_EV', time_end - time_start_part)
     call add_event('solve_with_general_elpa_eigenk', time_end - time_start)
   end subroutine solve_with_general_elpa_eigenk
-end module solver_elpa_eigenexa
+end module ek_solver_elpa_eigenexa_m

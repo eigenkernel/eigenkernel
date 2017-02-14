@@ -1,9 +1,9 @@
-module solver_elpa
-  use distribute_matrix, only : process
-  use descriptor_parameters
-  use eigenpairs_types, only : eigenpairs_types_union
-  use matrix_io, only : sparse_mat
-  use processes, only : check_master, terminate
+module ek_solver_elpa_m
+  use ek_distribute_matrix_m, only : ek_process_t
+  use ek_descriptor_parameters_m
+  use ek_eigenpairs_types_m, only : ek_eigenpairs_types_union_t
+  use ek_matrix_io_m, only : ek_sparse_mat_t
+  use ek_processes_m, only : check_master, terminate
 
   implicit none
   private
@@ -13,10 +13,10 @@ contains
 
   subroutine solve_with_general_elpa_scalapack(n, proc, matrix_A, eigenpairs, matrix_B)
     integer, intent(in) :: n
-    type(process), intent(in) :: proc
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in), optional :: matrix_B
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in), optional :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     call terminate('solver_elpa: ELPA is not supported in this build', 1)
   end subroutine solve_with_general_elpa_scalapack
@@ -24,10 +24,10 @@ contains
 
   subroutine solve_with_general_elpa1(n, proc, matrix_A, eigenpairs, matrix_B)
     integer, intent(in) :: n
-    type(process), intent(in) :: proc
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in), optional :: matrix_B
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in), optional :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     call terminate('solver_elpa: ELPA is not supported in this build', 1)
   end subroutine solve_with_general_elpa1
@@ -35,11 +35,11 @@ contains
 
   subroutine solve_with_general_elpa2(n, proc, matrix_A, eigenpairs, matrix_B)
     integer, intent(in) :: n
-    type(process), intent(in) :: proc
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in), optional :: matrix_B
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in), optional :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     call terminate('solver_elpa: ELPA is not supported in this build', 1)
   end subroutine solve_with_general_elpa2
-end module solver_elpa
+end module ek_solver_elpa_m

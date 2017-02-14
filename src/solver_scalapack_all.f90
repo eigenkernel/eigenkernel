@@ -1,14 +1,14 @@
-module solver_scalapack_all
+module ek_solver_scalapack_all_m
   use mpi
-  use descriptor_parameters
-  use distribute_matrix, only : &
+  use ek_descriptor_parameters_m
+  use ek_distribute_matrix_m, only : &
        get_local_cols, gather_matrix, allgather_row_wise, setup_distributed_matrix, &
        distribute_global_sparse_matrix
-  use eigenpairs_types, only : eigenpairs_types_union
-  use event_logger_m, only : add_event
-  use generalized_to_standard, only : reduce_generalized, recovery_generalized
-  use processes, only : check_master, process, terminate
-  use matrix_io, only : sparse_mat
+  use ek_eigenpairs_types_m, only : ek_eigenpairs_types_union_t
+  use ek_event_logger_m, only : add_event
+  use ek_generalized_to_standard_m, only : reduce_generalized, recovery_generalized
+  use ek_processes_m, only : check_master, ek_process_t, terminate
+  use ek_matrix_io_m, only : ek_sparse_mat_t
   implicit none
 
   private
@@ -17,10 +17,10 @@ module solver_scalapack_all
 contains
 
   subroutine eigen_solver_scalapack_all(proc, desc_A, A, eigenpairs)
-    type(process) :: proc
+    type(ek_process_t) :: proc
     integer, intent(in) :: desc_A(9)
     double precision, intent(in) :: A(:, :)
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     integer :: ierr, info
     integer :: dim, work_size, iwork_size, diag_size, subdiag_size
@@ -126,10 +126,10 @@ contains
 
   subroutine solve_with_general_scalapack(n, proc, matrix_A, eigenpairs, matrix_B)
     integer, intent(in) :: n
-    type(process), intent(in) :: proc
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in) :: matrix_B
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in) :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     integer :: desc_A(desc_size), desc_B(desc_size)
     double precision, allocatable :: matrix_A_dist(:, :), matrix_B_dist(:, :)
@@ -241,4 +241,4 @@ contains
            nb_a * nb_a
     end if
   end function work_size_for_pdormtr
-end module solver_scalapack_all
+end module ek_solver_scalapack_all_m

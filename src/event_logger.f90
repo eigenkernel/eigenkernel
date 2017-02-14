@@ -1,9 +1,9 @@
-module event_logger_m
+module ek_event_logger_m
   use mpi
   use fson
   use fson_value_m
   use fson_string_m
-  use global_variables
+  use ek_global_variables_m
   implicit none
 
   type event_t
@@ -139,4 +139,4 @@ contains
 
     call fson_value_add(output, events_in_fson)
   end subroutine fson_events_add
-end module event_logger_m
+end module ek_event_logger_m

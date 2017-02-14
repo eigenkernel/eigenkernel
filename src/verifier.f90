@@ -1,15 +1,15 @@
-module verifier
+module ek_verifier_m
   use mpi
-  use command_argument, only : argument
-  use descriptor_parameters
-  use distribute_matrix, only : convert_sparse_matrix_to_dense, &
+  use ek_command_argument_m, only : ek_argument_t
+  use ek_descriptor_parameters_m
+  use ek_distribute_matrix_m, only : convert_sparse_matrix_to_dense, &
        setup_distributed_matrix, distribute_global_sparse_matrix
-  use eigenpairs_types, only: eigenpairs_types_union, eigenpairs_local, &
-       eigenpairs_blacs
-  use event_logger_m, only : add_event
-  use global_variables, only : g_block_size
-  use matrix_io, only : sparse_mat
-  use processes, only : process, terminate
+  use ek_eigenpairs_types_m, only: ek_eigenpairs_types_union_t, ek_eigenpairs_local_t, &
+       ek_eigenpairs_blacs_t
+  use ek_event_logger_m, only : add_event
+  use ek_global_variables_m, only : g_block_size
+  use ek_matrix_io_m, only : ek_sparse_mat_t
+  use ek_processes_m, only : ek_process_t, terminate
   implicit none
 
   private
@@ -19,10 +19,10 @@ contains
 
   subroutine eval_residual_norm_local(arg, matrix_A, eigenpairs, &
        A_norm, res_norm_ave, res_norm_max, matrix_B)
-    type(argument), intent(in) :: arg
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in), optional :: matrix_B
-    type(eigenpairs_types_union), intent(in) :: eigenpairs
+    type(ek_argument_t), intent(in) :: arg
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in), optional :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(in) :: eigenpairs
 
     double precision, intent(out) :: A_norm, res_norm_ave, res_norm_max
 
@@ -74,14 +74,14 @@ contains
 
   subroutine eval_residual_norm_blacs(arg, matrix_A, eigenpairs, &
        A_norm, res_norm_ave, res_norm_max, matrix_B)
-    type(argument), intent(in) :: arg
-    type(sparse_mat), intent(in) :: matrix_A
-    type(eigenpairs_blacs), intent(inout) :: eigenpairs
-    type(sparse_mat), intent(in), optional :: matrix_B
+    type(ek_argument_t), intent(in) :: arg
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_eigenpairs_blacs_t), intent(inout) :: eigenpairs
+    type(ek_sparse_mat_t), intent(in), optional :: matrix_B
     ! residual norm average, max
     double precision, intent(out) :: A_norm, res_norm_ave, res_norm_max
 
-    type(process) :: proc
+    type(ek_process_t) :: proc
     integer :: dim, desc_Residual(desc_size), desc_A(desc_size), desc_B(desc_size)
     double precision, allocatable :: Residual(:, :), matrix_A_dist(:, :), matrix_B_dist(:, :)
     ! ave_and_max is declared as array due to usage of bcast
@@ -206,10 +206,10 @@ contains
 
   subroutine eval_residual_norm(arg, matrix_A, eigenpairs, &
        A_norm, res_norm_ave, res_norm_max, matrix_B)
-    type(argument), intent(in) :: arg
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in), optional :: matrix_B
-    type(eigenpairs_types_union), intent(inout) :: eigenpairs
+    type(ek_argument_t), intent(in) :: arg
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in), optional :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(inout) :: eigenpairs
     ! residual norm average, max
     double precision, intent(out) :: A_norm, res_norm_ave, res_norm_max
 
@@ -232,11 +232,11 @@ contains
 
   subroutine eval_orthogonality_blacs(index1, index2, eigenpairs, orthogonality, matrix_B)
     integer, intent(in) :: index1, index2
-    type(eigenpairs_blacs), intent(in) :: eigenpairs
-    type(sparse_mat), intent(in), optional :: matrix_B
+    type(ek_eigenpairs_blacs_t), intent(in) :: eigenpairs
+    type(ek_sparse_mat_t), intent(in), optional :: matrix_B
     double precision, intent(out) :: orthogonality
 
-    type(process) :: proc
+    type(ek_process_t) :: proc
     integer :: dim, n, block_size
     integer :: diag, i, j, owner_proc_row, owner_proc_col, info
     double precision :: scale
@@ -331,9 +331,9 @@ contains
 
 
   subroutine eval_orthogonality(arg, eigenpairs, orthogonality, matrix_B)
-    type(argument), intent(in) :: arg
-    type(eigenpairs_types_union), intent(in) :: eigenpairs
-    type(sparse_mat), intent(in), optional :: matrix_B
+    type(ek_argument_t), intent(in) :: arg
+    type(ek_eigenpairs_types_union_t), intent(in) :: eigenpairs
+    type(ek_sparse_mat_t), intent(in), optional :: matrix_B
     double precision, intent(out) :: orthogonality
 
     if (eigenpairs%type_number == 2) then
@@ -351,4 +351,4 @@ contains
       print '("[Warning] eval_orthogonality: orthogonality evaluator for output of this type is not implemeted yet")'
     end if
   end subroutine eval_orthogonality
-end module verifier
+end module ek_verifier_m

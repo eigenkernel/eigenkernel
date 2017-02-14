@@ -1,28 +1,28 @@
-module matrix_io
+module ek_matrix_io_m
   use mpi
-  use command_argument, only : argument, matrix_info
-  use descriptor_parameters
-  use event_logger_m, only : add_event
-  use eigenpairs_types, only : eigenpairs_types_union
-  use global_variables
-  use processes, only : check_master, terminate
+  use ek_command_argument_m, only : ek_argument_t, ek_matrix_info_t
+  use ek_descriptor_parameters_m
+  use ek_event_logger_m, only : add_event
+  use ek_eigenpairs_types_m, only : ek_eigenpairs_types_union_t
+  use ek_global_variables_m
+  use ek_processes_m, only : check_master, terminate
   implicit none
 
-  type sparse_mat
+  type ek_sparse_mat_t
     integer :: size, num_non_zeros
     double precision, allocatable :: value(:)
     integer, allocatable :: suffix(:, :)
-  end type sparse_mat
+  end type ek_sparse_mat_t
 
   private
-  public :: read_matrix_file, print_matrix, sparse_mat, print_eigenvectors
+  public :: read_matrix_file, print_matrix, ek_sparse_mat_t, print_eigenvectors
 
 contains
 
   subroutine read_matrix_file(filename, info, matrix, ierr)
     character(*), intent(in) :: filename
-    type(matrix_info), intent(in) :: info
-    type(sparse_mat), intent(out) :: matrix
+    type(ek_matrix_info_t), intent(in) :: info
+    type(ek_sparse_mat_t), intent(out) :: matrix
     integer, intent(out) :: ierr
 
     double precision :: time_start, time_start_part, time_end
@@ -171,8 +171,8 @@ contains
 
 
   subroutine print_eigenvectors(arg, eigenpairs)
-    type(argument) :: arg
-    type(eigenpairs_types_union) :: eigenpairs
+    type(ek_argument_t) :: arg
+    type(ek_eigenpairs_types_union_t) :: eigenpairs
 
     double precision :: time_start, time_end
     integer :: len, i, j, digit, stat, desc(desc_size)
@@ -283,4 +283,4 @@ contains
        end if
     end if
   end subroutine print_vector
-end module matrix_io
+end module ek_matrix_io_m

@@ -1,14 +1,14 @@
-module solver_eigenexa
+module ek_solver_eigenexa_m
   use eigen_libs
   use mpi
-  use distribute_matrix, only : setup_distributed_matrix, distribute_global_sparse_matrix
-  use descriptor_parameters
-  use eigenpairs_types, only : eigenpairs_types_union
-  use event_logger_m, only : add_event
-  use generalized_to_standard, only : reduce_generalized, &
+  use ek_distribute_matrix_m, only : setup_distributed_matrix, distribute_global_sparse_matrix
+  use ek_descriptor_parameters_m
+  use ek_eigenpairs_types_m, only : eigenpairs_types_union
+  use ek_event_logger_m, only : add_event
+  use ek_generalized_to_standard_m, only : reduce_generalized, &
        reduce_generalized_new, recovery_generalized
-  use matrix_io, only : sparse_mat
-  use processes, only : check_master, terminate, process
+  use ek_matrix_io_m, only : sparse_mat
+  use ek_processes_m, only : check_master, terminate, process
 
   implicit none
 
@@ -438,4 +438,4 @@ contains
     call add_event('solve_with_general_scalapacknew_eigenk:recovery_generalized', time_end - time_start_part)
     call add_event('solve_with_general_scalapacknew_eigenk', time_end - time_start)
   end subroutine solve_with_general_scalapacknew_eigenk
-end module solver_eigenexa
+end module ek_solver_eigenexa_m

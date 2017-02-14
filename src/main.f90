@@ -1,30 +1,30 @@
-program eigen_test
+program eigbench
   use mpi
   use fson
   use fson_value_m
   use fson_string_m
-  use distribute_matrix
-  use event_logger_m
-  use global_variables
-  use solver_main, only : eigen_solver
-  use command_argument, only : argument, required_memory, &
+  use ek_distribute_matrix_m
+  use ek_event_logger_m
+  use ek_global_variables_m
+  use ek_solver_main_m, only : eigen_solver
+  use ek_command_argument_m, only : ek_argument_t, required_memory, &
        read_command_argument, validate_argument, print_command_argument, fson_setting_add
-  use matrix_io, only : sparse_mat, read_matrix_file, print_eigenvectors
-  use processes, only : get_num_procs, check_master
-  use eigenpairs_types, only : eigenpairs_types_union
-  use verifier, only : eval_residual_norm, eval_orthogonality
+  use ek_matrix_io_m, only : ek_sparse_mat_t, read_matrix_file, print_eigenvectors
+  use ek_processes_m, only : get_num_procs, check_master
+  use ek_eigenpairs_types_m, only : ek_eigenpairs_types_union_t
+  use ek_verifier_m, only : eval_residual_norm, eval_orthogonality
   implicit none
 
-  type(argument) :: arg
-  type(sparse_mat) :: matrix_A, matrix_B
-  type(eigenpairs_types_union) :: eigenpairs
+  type(ek_argument_t) :: arg
+  type(ek_sparse_mat_t) :: matrix_A, matrix_B
+  type(ek_eigenpairs_types_union_t) :: eigenpairs
   double precision :: A_norm, rn_ave, rn_max, orthogonality
   double precision, allocatable :: ipratios(:)
   integer :: num_mpi_procs, num_omp_procs, j, ierr, ierr_mpi
   integer, parameter :: iunit = 10
   double precision :: time_start, time_start_part, time_end
   type(fson_value), pointer :: output
-  type(process) :: proc
+  type(ek_process_t) :: proc
 
   call mpi_init(ierr)
   if (ierr /= 0) then
@@ -190,4 +190,4 @@ program eigen_test
   end if
 
   call mpi_finalize(ierr)
-end program eigen_test
+end program eigbench

@@ -1,27 +1,27 @@
-module command_argument
+module ek_command_argument_m
   use mpi
   use fson
   use fson_value_m
   use fson_string_m
-  use global_variables
-  use processes, only : check_master, terminate
+  use ek_global_variables_m
+  use ek_processes_m, only : check_master, terminate
   implicit none
 
   integer, parameter :: kMaxNumPrintedVecsRanges = 100
 
   ! Matrix Market format
-  type matrix_info
+  type ek_matrix_info_t
     character(len=10) :: rep
     character(len=7) :: field
     character(len=19) :: symm
     integer :: rows, cols, entries
-  end type matrix_info
+  end type ek_matrix_info_t
 
-  type argument
+  type ek_argument_t
     character(len=256) :: matrix_A_filename = ''
     character(len=256) :: matrix_B_filename = '' ! Empty means standard eigenvalue problem
     character(len=256) :: log_filename = 'log.json'
-    type(matrix_info) :: matrix_A_info, matrix_B_info
+    type(ek_matrix_info_t) :: matrix_A_info, matrix_B_info
     character(len=256) :: solver_type
     character(len=256) :: output_filename = 'eigenvalues.dat'
     character(len=256) :: ipratios_filename = 'ipratios.dat'
@@ -41,10 +41,10 @@ module command_argument
     integer :: num_printed_vecs_ranges = 0 ! Zero means do not print eigenvectors
     integer :: printed_vecs_ranges(2, kMaxNumPrintedVecsRanges)
     integer :: verbose_level = 0
-  end type argument
+  end type ek_argument_t
 
   private
-  public :: matrix_info, argument, required_memory, &
+  public :: ek_matrix_info_t, ek_argument_t, required_memory, &
        read_command_argument, validate_argument, print_command_argument, fson_setting_add
 
 contains
@@ -88,7 +88,7 @@ contains
 
   subroutine wrap_mminfo(filename, minfo, ierr)
     character(*), intent(in) :: filename
-    type(matrix_info), intent(out) :: minfo
+    type(ek_matrix_info_t), intent(out) :: minfo
     integer, intent(out) :: ierr
 
     integer, parameter :: iunit = 8
@@ -105,7 +105,7 @@ contains
 
   subroutine bcast_matrix_info(root, minfo)
     integer, intent(in) :: root
-    type(matrix_info), intent(inout) :: minfo
+    type(ek_matrix_info_t), intent(inout) :: minfo
 
     integer :: ierr
 
@@ -119,7 +119,7 @@ contains
 
 
   subroutine validate_argument(arg)
-    type(argument), intent(in) :: arg
+    type(ek_argument_t), intent(in) :: arg
 
     integer :: dim, i
     logical :: is_size_valid, is_solver_valid, is_n_vec_valid
@@ -220,7 +220,7 @@ contains
 
 
   double precision function required_memory_lapack(arg)
-    type(argument), intent(in) :: arg
+    type(ek_argument_t), intent(in) :: arg
 
     double precision :: num_double, dim
 
@@ -235,7 +235,7 @@ contains
     ! This is just an approximation and partial eigenvector computation
     ! (means reduced columns of eigenvector storage) is not supported yet
     ! Generalized version below has the same problem
-    type(argument), intent(in) :: arg
+    type(ek_argument_t), intent(in) :: arg
 
     integer :: my_rank, n_procs
     double precision :: num_double, dim
@@ -252,7 +252,7 @@ contains
 
 
   double precision function required_memory_parallel_generalized(arg)
-    type(argument), intent(in) :: arg
+    type(ek_argument_t), intent(in) :: arg
 
     integer :: my_rank, n_procs
     double precision :: num_double, dim
@@ -316,7 +316,7 @@ contains
 
 
   double precision function required_memory(arg)
-    type(argument), intent(in) :: arg
+    type(ek_argument_t), intent(in) :: arg
 
     select case (trim(arg%solver_type))
     case ('lapack')
@@ -336,7 +336,7 @@ contains
 
 
   subroutine read_command_argument(arg)
-    type(argument), intent(out) :: arg
+    type(ek_argument_t), intent(out) :: arg
 
     integer :: argi = 1
     character(len=256) :: arg_str
@@ -455,7 +455,7 @@ contains
 
   subroutine print_matrix_info(name, info)
     character(*), intent(in) :: name
-    type(matrix_info), intent(in) :: info
+    type(ek_matrix_info_t), intent(in) :: info
 
     print "('matrix ', A, ' field: ', A)", name, trim(info%field)
     print "('matrix ', A, ' symm: ', A)", name, trim(info%symm)
@@ -466,7 +466,7 @@ contains
 
 
   subroutine print_command_argument(arg)
-    type(argument), intent(in) :: arg
+    type(ek_argument_t), intent(in) :: arg
 
     if (arg%is_generalized_problem) then
       print '("problem type: generalized")'
@@ -492,7 +492,7 @@ contains
 
 
   subroutine fson_setting_add(arg, output)
-    type(argument), intent(in) :: arg
+    type(ek_argument_t), intent(in) :: arg
     type(fson_value), pointer, intent(inout) :: output
 
     type(fson_value), pointer :: setting_in_fson, setting_elem
@@ -574,4 +574,4 @@ contains
 
     call fson_value_add(output, setting_in_fson)
   end subroutine fson_setting_add
-end module command_argument
+end module ek_command_argument_m

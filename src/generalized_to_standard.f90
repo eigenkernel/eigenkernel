@@ -1,8 +1,8 @@
-module generalized_to_standard
+module ek_generalized_to_standard_m
   use mpi
-  use descriptor_parameters
-  use event_logger_m, only : add_event
-  use processes, only : check_master, terminate
+  use ek_descriptor_parameters_m
+  use ek_event_logger_m, only : add_event
+  use ek_processes_m, only : check_master, terminate
   implicit none
 
   private
@@ -110,4 +110,4 @@ contains
     time_end = mpi_wtime()
     call add_event('recovery_generalized', time_end - time_start)
   end subroutine recovery_generalized
-end module generalized_to_standard
+end module ek_generalized_to_standard_m
