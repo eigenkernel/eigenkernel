@@ -70,19 +70,19 @@ OBJS_LIB = $(OBJS_SOLVER) $(OBJS_EIGENEXA) $(OBJS_ELPA) $(OBJS_ELPA_EIGENEXA) $(
 OBJS = $(OBJS_MAIN) $(OBJS_LIB)
 
 $(OBJS_UTIL_F77): %.o: %.f
-	$(FC) -c $(FFLAGS_INTERNAL) $(LIBS) $< -o $@
+	$(FC) -c $(FFLAGS_INTERNAL) $< -o $@
 
 $(OBJS_MAIN) $(OBJS_SOLVER) $(OBJS_UTIL): %.o: %.f90
-	$(FC) -c $(FFLAGS_INTERNAL) $(LIBS) $< -o $@
+	$(FC) -c $(FFLAGS_INTERNAL) $< -o $@
 
 $(OBJS_EIGENEXA): $(SRCS_EIGENEXA)
-	$(FC) -c $(FFLAGS_EIGENEXA) $(LIBS) $< -o $@
+	$(FC) -c $(FFLAGS_EIGENEXA) $< -o $@
 
 $(OBJS_ELPA): $(SRCS_ELPA)
-	$(FC) -c $(FFLAGS_ELPA) $(LIBS) $< -o $@
+	$(FC) -c $(FFLAGS_ELPA) $< -o $@
 
 $(OBJS_ELPA_EIGENEXA): $(SRCS_ELPA_EIGENEXA)
-	$(FC) -c $(FFLAGS_ELPA_EIGENEXA) $(LIBS) $< -o $@
+	$(FC) -c $(FFLAGS_ELPA_EIGENEXA) $< -o $@
 
 $(TARGET_MAIN): $(OBJS)
 	$(FC) $(FFLAGS_INTERNAL) $(LDFLAGS_INTERNAL) $^ $(LIBS) -o $@
