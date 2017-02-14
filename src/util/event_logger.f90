@@ -20,18 +20,25 @@ module event_logger_m
 
 contains
 
-  subroutine add_event(name, val)
+  subroutine add_event(name, val, to_print)
     character(*), intent(in) :: name
     real(8), intent(in) :: val
+    logical, optional, intent(in) :: to_print  ! Print log to stderr in default.
     type(event_t), pointer :: new_event, p
 
     integer :: my_rank, ierr
     double precision :: t
-    logical :: is_found
+    logical :: is_found, to_print_actual
+
+    if (present(to_print)) then
+      to_print_actual = to_print
+    else
+      to_print_actual = .true.
+    end if
 
     call mpi_comm_rank(mpi_comm_world, my_rank, ierr)
     t = mpi_wtime() - g_mpi_wtime_init
-    if (my_rank == 0) then
+    if (to_print_actual .and. my_rank == 0) then
       write (0, '(A, F16.6, 3A, E24.16e3)') '[Event', t, '] ', name, ',', val
     end if
 
