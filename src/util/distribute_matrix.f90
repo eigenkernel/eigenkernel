@@ -10,7 +10,7 @@ module distribute_matrix
 
   public :: get_local_cols, setup_distributed_matrix, &
        distribute_global_dense_matrix, distribute_global_sparse_matrix, &
-       convert_sparse_matrix_to_dense, gather_matrix, allgather_row_wise, &
+       convert_sparse_matrix_to_dense, gather_matrix, gather_matrix_part, allgather_row_wise, &
        bcast_sparse_matrix
 
 contains
@@ -256,6 +256,87 @@ contains
     time_end = mpi_wtime()
     call add_event('gather_matrix', time_end - time_start)
   end subroutine gather_matrix
+
+
+  subroutine gather_matrix_part(mat, desc, i, j, m, n, dest_row, dest_col, dest_mat)
+    real(8), intent(in) :: mat(:, :)
+    integer, intent(in) :: i, j, m, n, desc(desc_size), dest_row, dest_col
+    real(8), intent(out) :: dest_mat(:, :)
+
+    real(8), allocatable :: recv_buf(:, :)
+    integer :: buf_size_row, buf_size_col
+    integer :: rows, cols, mb, nb, m_local, n_local, context, m_send, n_send
+    integer :: n_procs_row, n_procs_col, my_proc_row, my_proc_col
+    integer :: pr, pc, br, bc
+    integer :: m1_local, m2_local, m1_global, m2_global
+    integer :: n1_local, n2_local, n1_global, n2_global
+    integer :: ierr
+    real(8) :: time_start, time_end
+
+    integer :: numroc, iceil, indxg2l
+
+    time_start = mpi_wtime()
+
+    rows = desc(rows_)
+    cols = desc(cols_)
+    mb = desc(block_row_)
+    nb = desc(block_col_)
+    m_local = size(mat, 1)
+    n_local = size(mat, 2)
+    context = desc(context_)
+    call blacs_gridinfo(context, n_procs_row, n_procs_col, my_proc_row, my_proc_col)
+
+    if (my_proc_row == dest_row .and. my_proc_col == dest_col) then
+      buf_size_row = numroc(rows, mb, 0, 0, n_procs_row)
+      buf_size_col = numroc(cols, nb, 0, 0, n_procs_col)
+      allocate(recv_buf(buf_size_row, buf_size_col), stat = ierr)
+    else
+      allocate(recv_buf(0, 0), stat = ierr) ! Only destination process uses receive buffer
+    end if
+    if (ierr /= 0) then
+      call terminate('gather_matrix_part: allocation failed', ierr)
+    end if
+
+    do pr = 0, n_procs_row - 1
+      do pc = 0, n_procs_col - 1
+        m_send = numroc(rows, mb, pr, 0, n_procs_row)
+        n_send = numroc(cols, nb, pc, 0, n_procs_col)
+        if (my_proc_row == pr .and. my_proc_col == pc) then
+          call dgesd2d(context, m_send, n_send, mat, desc(local_rows_), dest_row, dest_col)
+        end if
+        if (my_proc_row == dest_row .and. my_proc_col == dest_col) then
+          call dgerv2d(context, m_send, n_send, recv_buf, buf_size_row, pr, pc)
+          do br = 1, iceil(iceil(rows, mb) - pr, n_procs_row)
+            m1_global = 1 + mb * (n_procs_row * (br - 1) + pr)
+            m2_global = m1_global + mb - 1
+            m1_global = max(m1_global, i)
+            m2_global = min(m2_global, i + m - 1)
+            if (m1_global > m2_global) then
+              cycle
+            end if
+            m1_local = indxg2l(m1_global, mb, 0, 0, n_procs_row)
+            m2_local = indxg2l(m2_global, mb, 0, 0, n_procs_row)
+            do bc = 1, iceil(iceil(cols, nb) - pc, n_procs_col)
+              n1_global = 1 + nb * (n_procs_col * (bc - 1) + pc)
+              n2_global = n1_global + nb - 1
+              n1_global = max(n1_global, j)
+              n2_global = min(n2_global, j + n - 1)
+              if (n1_global > n2_global) then
+                cycle
+              end if
+              n1_local = indxg2l(n1_global, nb, 0, 0, n_procs_col)
+              n2_local = indxg2l(n2_global, nb, 0, 0, n_procs_col)
+              dest_mat(m1_global - i + 1 : m2_global - i + 1, n1_global - j + 1 : n2_global - j + 1) = &
+                   recv_buf(m1_local : m2_local, n1_local : n2_local)
+            end do
+          end do
+        end if
+      end do
+    end do
+
+    time_end = mpi_wtime()
+    call add_event('gather_matrix_part', time_end - time_start, .false.)
+  end subroutine gather_matrix_part
 
 
   subroutine distribute_global_dense_matrix(global_mat, desc, local_mat)
