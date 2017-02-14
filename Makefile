@@ -1,5 +1,8 @@
 all:
-	cd src && make eigbench
+	make -C src all
+
+lib:
+	make -C src lib
 
 clean:
-	cd src && make clean
+	make -C src clean
