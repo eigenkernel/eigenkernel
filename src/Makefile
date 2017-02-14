@@ -17,9 +17,11 @@ TARGET_MAIN = eigbench
 
 TARGET_LIB = libeigenkernel.a
 
-.PHONY: all lib clean dep
+.PHONY: all main lib clean dep
 
-all: $(TARGET_MAIN)
+all: main lib
+
+main: $(TARGET_MAIN)
 
 lib: $(TARGET_LIB)
 
