@@ -33,7 +33,7 @@ ifeq ($(WITH_EIGENEXA), 1)
 	FFLAGS_EIGENEXA = $(FFLAGS_INTERNAL) $(CPPFLAG) $(EIGENEXA_WITH_TIMER_FLAG)
 else
 	SRCS_EIGENEXA = solver/solver_eigenexa_dummy.f90
-	FFLAGS_EIGENEXA = $(FFLAGS_INTERNAL) -Wno-unused-dummy-argument
+	FFLAGS_EIGENEXA = $(FFLAGS_INTERNAL) $(WNO_UNUSED_DUMMY_ARGUMENT_FLAG)
 endif
 
 OBJS_ELPA = solver/solver_elpa.o
@@ -42,7 +42,7 @@ ifeq ($(WITH_ELPA), 1)
 	FFLAGS_ELPA = $(FFLAGS_INTERNAL) $(CPPFLAG) $(ELPA_VERSION_FLAG)
 else
 	SRCS_ELPA = solver/solver_elpa_dummy.f90
-	FFLAGS_ELPA = $(FFLAGS_INTERNAL) -Wno-unused-dummy-argument
+	FFLAGS_ELPA = $(FFLAGS_INTERNAL) $(WNO_UNUSED_DUMMY_ARGUMENT_FLAG)
 endif
 
 OBJS_ELPA_EIGENEXA = solver/solver_elpa_eigenexa.o
@@ -52,11 +52,11 @@ ifeq ($(WITH_ELPA), 1)
 		FFLAGS_ELPA_EIGENEXA = $(FFLAGS_INTERNAL) $(CPPFLAG) $(ELPA_VERSION_FLAG)
 	else
 		SRCS_ELPA_EIGENEXA = solver/solver_elpa_eigenexa_dummy.f90
-		FFLAGS_ELPA_EIGENEXA = $(FFLAGS_INTERNAL) -Wno-unused-dummy-argument
+		FFLAGS_ELPA_EIGENEXA = $(FFLAGS_INTERNAL) $(WNO_UNUSED_DUMMY_ARGUMENT_FLAG)
 	endif
 else
 	SRCS_ELPA_EIGENEXA = solver/solver_elpa_eigenexa_dummy.f90
-	FFLAGS_ELPA_EIGENEXA = $(FFLAGS_INTERNAL) -Wno-unused-dummy-argument
+	FFLAGS_ELPA_EIGENEXA = $(FFLAGS_INTERNAL) $(WNO_UNUSED_DUMMY_ARGUMENT_FLAG)
 endif
 
 OBJS_UTIL_F77 = util/mmio.o
