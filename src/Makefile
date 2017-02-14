@@ -1,4 +1,5 @@
-include ../Makefile.in
+-include ../../../Makefile.inc
+-include ../Makefile.in
 
 EIGENEXA_WITH_TIMER_FLAG = $(MACRO_PREFIX)EIGENEXA_WITH_TIMER=0
 #EIGENEXA_WITH_TIMER_FLAG = $(MACRO_PREFIX)EIGENEXA_WITH_TIMER=1
@@ -9,12 +10,12 @@ ifndef ELPA_VERSION
 endif
 ELPA_VERSION_FLAG = $(MACRO_PREFIX)ELPA_VERSION=$(ELPA_VERSION)
 
-FCFLAGS_INTERNAL = $(FCFLAGS)
+FFLAGS_INTERNAL = $(FFLAGS)
 LDFLAGS_INTERNAL = $(LDFLAGS)
 
 TARGET_MAIN = eigbench
 
-TARGET_LIB = libEigenTest.a
+TARGET_LIB = libeigenkernel.a
 
 .PHONY: all lib clean dep
 
@@ -29,33 +30,33 @@ OBJS_SOLVER = solver/solver_main.o solver/solver_lapack.o solver/solver_scalapac
 OBJS_EIGENEXA = solver/solver_eigenexa.o
 ifeq ($(WITH_EIGENEXA), 1)
 	SRCS_EIGENEXA = solver/solver_eigenexa.f90
-	FCFLAGS_EIGENEXA = $(FCFLAGS_INTERNAL) $(CPPFLAG) $(EIGENEXA_WITH_TIMER_FLAG)
+	FFLAGS_EIGENEXA = $(FFLAGS_INTERNAL) $(CPPFLAG) $(EIGENEXA_WITH_TIMER_FLAG)
 else
 	SRCS_EIGENEXA = solver/solver_eigenexa_dummy.f90
-	FCFLAGS_EIGENEXA = $(FCFLAGS_INTERNAL) -Wno-unused-dummy-argument
+	FFLAGS_EIGENEXA = $(FFLAGS_INTERNAL) -Wno-unused-dummy-argument
 endif
 
 OBJS_ELPA = solver/solver_elpa.o
 ifeq ($(WITH_ELPA), 1)
 	SRCS_ELPA = solver/solver_elpa.f90
-	FCFLAGS_ELPA = $(FCFLAGS_INTERNAL) $(CPPFLAG) $(ELPA_VERSION_FLAG)
+	FFLAGS_ELPA = $(FFLAGS_INTERNAL) $(CPPFLAG) $(ELPA_VERSION_FLAG)
 else
 	SRCS_ELPA = solver/solver_elpa_dummy.f90
-	FCFLAGS_ELPA = $(FCFLAGS_INTERNAL) -Wno-unused-dummy-argument
+	FFLAGS_ELPA = $(FFLAGS_INTERNAL) -Wno-unused-dummy-argument
 endif
 
 OBJS_ELPA_EIGENEXA = solver/solver_elpa_eigenexa.o
 ifeq ($(WITH_ELPA), 1)
 	ifeq ($(WITH_EIGENEXA), 1)
 		SRCS_ELPA_EIGENEXA = solver/solver_elpa_eigenexa.f90
-		FCFLAGS_ELPA_EIGENEXA = $(FCFLAGS_INTERNAL) $(CPPFLAG) $(ELPA_VERSION_FLAG)
+		FFLAGS_ELPA_EIGENEXA = $(FFLAGS_INTERNAL) $(CPPFLAG) $(ELPA_VERSION_FLAG)
 	else
 		SRCS_ELPA_EIGENEXA = solver/solver_elpa_eigenexa_dummy.f90
-		FCFLAGS_ELPA_EIGENEXA = $(FCFLAGS_INTERNAL) -Wno-unused-dummy-argument
+		FFLAGS_ELPA_EIGENEXA = $(FFLAGS_INTERNAL) -Wno-unused-dummy-argument
 	endif
 else
 	SRCS_ELPA_EIGENEXA = solver/solver_elpa_eigenexa_dummy.f90
-	FCFLAGS_ELPA_EIGENEXA = $(FCFLAGS_INTERNAL) -Wno-unused-dummy-argument
+	FFLAGS_ELPA_EIGENEXA = $(FFLAGS_INTERNAL) -Wno-unused-dummy-argument
 endif
 
 OBJS_UTIL_F77 = util/mmio.o
@@ -67,19 +68,19 @@ OBJS_LIB = $(OBJS_SOLVER) $(OBJS_EIGENEXA) $(OBJS_ELPA) $(OBJS_ELPA_EIGENEXA) $(
 OBJS = $(OBJS_MAIN) $(OBJS_LIB)
 
 $(OBJS_UTIL_F77): %.o: %.f
-	$(FC) -c $(FCFLAGS_INTERNAL) $(LIBS) $< -o $@
+	$(FC) -c $(FFLAGS_INTERNAL) $(LIBS) $< -o $@
 
 $(OBJS_MAIN) $(OBJS_SOLVER) $(OBJS_UTIL): %.o: %.f90
-	$(FC) -c $(FCFLAGS_INTERNAL) $(LIBS) $< -o $@
+	$(FC) -c $(FFLAGS_INTERNAL) $(LIBS) $< -o $@
 
 $(OBJS_EIGENEXA): $(SRCS_EIGENEXA)
-	$(FC) -c $(FCFLAGS_EIGENEXA) $(LIBS) $< -o $@
+	$(FC) -c $(FFLAGS_EIGENEXA) $(LIBS) $< -o $@
 
 $(OBJS_ELPA): $(SRCS_ELPA)
-	$(FC) -c $(FCFLAGS_ELPA) $(LIBS) $< -o $@
+	$(FC) -c $(FFLAGS_ELPA) $(LIBS) $< -o $@
 
 $(OBJS_ELPA_EIGENEXA): $(SRCS_ELPA_EIGENEXA)
-	$(FC) -c $(FCFLAGS_ELPA_EIGENEXA) $(LIBS) $< -o $@
+	$(FC) -c $(FFLAGS_ELPA_EIGENEXA) $(LIBS) $< -o $@
 
 $(TARGET_MAIN): $(OBJS)
 	$(FC) $(LDFLAGS_INTERNAL) $^ $(LIBS) -o $@

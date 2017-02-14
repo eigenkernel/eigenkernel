@@ -1,6 +1,6 @@
 FC = mpif90
 MACRO_PREFIX = -D
 CPPFLAG = -cpp
-FCFLAGS = -O3 -Wall -fopenmp
+FFLAGS = -O3 -Wall -fopenmp
 LDFLAGS = $(FCFLAGS)
 LIBS = -lscalapack -llapack -lblas -lgomp
