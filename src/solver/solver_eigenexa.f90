@@ -115,7 +115,7 @@ contains
 
     call mpi_comm_rank(mpi_comm_world, my_rank, ierr)
 
-#if	EIGENEXA_WITH_TIMER
+#if	USE_EIGENEXA_WITH_TIMER
     call eigen_sx(dim, dim, mat, nx, &
          eigenpairs%blacs%values, eigenpairs%blacs%Vectors, nx, eigen_times, &
          m_forward = m_forward, m_backward = m_backward)
@@ -148,7 +148,7 @@ contains
     integer :: i, dim, nx, ny, my_rank, ierr
     integer, parameter :: m_forward = 48, m_backward = 128
     double precision :: time_start, time_start_part, time_end
-#if	EIGENEXA_WITH_TIMER
+#if	USE_EIGENEXA_WITH_TIMER
     double precision :: eigen_times(8)
 #endif
 
@@ -187,7 +187,7 @@ contains
 
     call mpi_comm_rank(mpi_comm_world, my_rank, ierr)
 
-#if	EIGENEXA_WITH_TIMER
+#if	USE_EIGENEXA_WITH_TIMER
     call eigen_s(dim, dim, mat, nx, &
          eigenpairs%blacs%values, eigenpairs%blacs%Vectors, nx, eigen_times, &
          m_forward = m_forward, m_backward = m_backward)
