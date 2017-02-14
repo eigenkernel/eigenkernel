@@ -83,7 +83,7 @@ $(OBJS_ELPA_EIGENEXA): $(SRCS_ELPA_EIGENEXA)
 	$(FC) -c $(FFLAGS_ELPA_EIGENEXA) $(LIBS) $< -o $@
 
 $(TARGET_MAIN): $(OBJS)
-	$(FC) $(LDFLAGS_INTERNAL) $^ $(LIBS) -o $@
+	$(FC) $(FFLAGS_INTERNAL) $(LDFLAGS_INTERNAL) $^ $(LIBS) -o $@
 	@mkdir -p ../bin
 	cp $(TARGET_MAIN) ../bin/$(TARGET_MAIN)
 
