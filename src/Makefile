@@ -25,43 +25,43 @@ lib: $(TARGET_LIB)
 
 OBJS_MAIN = main.o
 
-OBJS_SOLVER = solver/solver_main.o solver/solver_lapack.o solver/solver_scalapack_all.o solver/solver_scalapack_select.o solver/verifier.o solver/generalized_to_standard.o
+OBJS_SOLVER = solver_main.o solver_lapack.o solver_scalapack_all.o solver_scalapack_select.o verifier.o generalized_to_standard.o
 
-OBJS_EIGENEXA = solver/solver_eigenexa.o
+OBJS_EIGENEXA = solver_eigenexa.o
 ifeq ($(WITH_EIGENEXA), 1)
-	SRCS_EIGENEXA = solver/solver_eigenexa.f90
+	SRCS_EIGENEXA = solver_eigenexa.f90
 	FFLAGS_EIGENEXA = $(FFLAGS_INTERNAL) $(CPPFLAG) $(EIGENEXA_WITH_TIMER_FLAG)
 else
-	SRCS_EIGENEXA = solver/solver_eigenexa_dummy.f90
+	SRCS_EIGENEXA = solver_eigenexa_dummy.f90
 	FFLAGS_EIGENEXA = $(FFLAGS_INTERNAL) $(WNO_UNUSED_DUMMY_ARGUMENT_FLAG)
 endif
 
-OBJS_ELPA = solver/solver_elpa.o
+OBJS_ELPA = solver_elpa.o
 ifeq ($(WITH_ELPA), 1)
-	SRCS_ELPA = solver/solver_elpa.f90
+	SRCS_ELPA = solver_elpa.f90
 	FFLAGS_ELPA = $(FFLAGS_INTERNAL) $(CPPFLAG) $(ELPA_VERSION_FLAG)
 else
-	SRCS_ELPA = solver/solver_elpa_dummy.f90
+	SRCS_ELPA = solver_elpa_dummy.f90
 	FFLAGS_ELPA = $(FFLAGS_INTERNAL) $(WNO_UNUSED_DUMMY_ARGUMENT_FLAG)
 endif
 
-OBJS_ELPA_EIGENEXA = solver/solver_elpa_eigenexa.o
+OBJS_ELPA_EIGENEXA = solver_elpa_eigenexa.o
 ifeq ($(WITH_ELPA), 1)
 	ifeq ($(WITH_EIGENEXA), 1)
-		SRCS_ELPA_EIGENEXA = solver/solver_elpa_eigenexa.f90
+		SRCS_ELPA_EIGENEXA = solver_elpa_eigenexa.f90
 		FFLAGS_ELPA_EIGENEXA = $(FFLAGS_INTERNAL) $(CPPFLAG) $(ELPA_VERSION_FLAG)
 	else
-		SRCS_ELPA_EIGENEXA = solver/solver_elpa_eigenexa_dummy.f90
+		SRCS_ELPA_EIGENEXA = solver_elpa_eigenexa_dummy.f90
 		FFLAGS_ELPA_EIGENEXA = $(FFLAGS_INTERNAL) $(WNO_UNUSED_DUMMY_ARGUMENT_FLAG)
 	endif
 else
-	SRCS_ELPA_EIGENEXA = solver/solver_elpa_eigenexa_dummy.f90
+	SRCS_ELPA_EIGENEXA = solver_elpa_eigenexa_dummy.f90
 	FFLAGS_ELPA_EIGENEXA = $(FFLAGS_INTERNAL) $(WNO_UNUSED_DUMMY_ARGUMENT_FLAG)
 endif
 
-OBJS_UTIL_F77 = util/mmio.o
+OBJS_UTIL_F77 = mmio.o
 
-OBJS_UTIL = util/descriptor_parameters.o util/global_variables.o util/command_argument.o util/matrix_io.o util/distribute_matrix.o util/processes.o util/eigenpairs_types.o util/event_logger.o util/fson.o util/modules.o
+OBJS_UTIL = descriptor_parameters.o global_variables.o command_argument.o matrix_io.o distribute_matrix.o processes.o eigenpairs_types.o event_logger.o fson.o modules.o
 
 OBJS_LIB = $(OBJS_SOLVER) $(OBJS_EIGENEXA) $(OBJS_ELPA) $(OBJS_ELPA_EIGENEXA) $(OBJS_UTIL) $(OBJS_UTIL_F77)
 

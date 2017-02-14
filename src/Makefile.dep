@@ -1,17 +1,17 @@
-./util/command_argument.o : ./util/processes.o ./util/global_variables.o ./util/fson.o ./util/fson.o ./util/fson.o 
-./util/matrix_io.o : ./util/processes.o ./util/global_variables.o ./util/eigenpairs_types.o ./util/event_logger.o ./util/descriptor_parameters.o ./util/command_argument.o 
-./util/modules.o : ./solver/verifier.o ./solver/solver_scalapack_select.o ./solver/solver_scalapack_all.o ./solver/solver_lapack.o ./solver/solver_elpa_eigenexa.o ./solver/solver_elpa.o ./solver/solver_eigenexa.o ./util/processes.o ./solver/generalized_to_standard.o ./util/eigenpairs_types.o ./util/distribute_matrix.o 
-./util/processes.o : ./util/event_logger.o 
-./util/distribute_matrix.o : ./util/processes.o ./util/matrix_io.o ./util/global_variables.o ./util/event_logger.o ./util/descriptor_parameters.o ./util/command_argument.o 
-./util/fson.o : 
-./util/event_logger.o : ./util/global_variables.o ./util/fson.o ./util/fson.o ./util/fson.o 
-./solver/generalized_to_standard.o : ./util/processes.o ./util/event_logger.o ./util/descriptor_parameters.o 
-./solver/solver_scalapack_all.o : ./util/matrix_io.o ./util/processes.o ./solver/generalized_to_standard.o ./util/event_logger.o ./util/eigenpairs_types.o ./util/distribute_matrix.o ./util/descriptor_parameters.o 
-./solver/solver_main.o : ./solver/solver_elpa_eigenexa.o ./solver/solver_elpa.o ./solver/solver_eigenexa.o ./solver/solver_scalapack_select.o ./solver/solver_scalapack_all.o ./solver/solver_lapack.o ./util/processes.o ./util/global_variables.o ./solver/generalized_to_standard.o ./util/event_logger.o ./util/eigenpairs_types.o ./util/distribute_matrix.o ./util/matrix_io.o ./util/command_argument.o ./util/descriptor_parameters.o 
-./solver/solver_eigenexa.o : ./util/processes.o ./util/matrix_io.o ./solver/generalized_to_standard.o ./util/event_logger.o ./util/eigenpairs_types.o ./util/descriptor_parameters.o ./util/distribute_matrix.o 
-./solver/verifier.o : ./util/processes.o ./util/matrix_io.o ./util/global_variables.o ./util/event_logger.o ./util/eigenpairs_types.o ./util/distribute_matrix.o ./util/descriptor_parameters.o ./util/command_argument.o 
-./solver/solver_elpa.o : ./util/processes.o ./util/matrix_io.o ./util/event_logger.o ./util/eigenpairs_types.o ./util/descriptor_parameters.o ./util/distribute_matrix.o ./util/global_variables.o 
-./solver/solver_lapack.o : ./util/eigenpairs_types.o ./util/distribute_matrix.o ./util/matrix_io.o 
-./solver/solver_scalapack_select.o : ./util/processes.o ./util/eigenpairs_types.o ./util/distribute_matrix.o ./util/descriptor_parameters.o 
-./solver/solver_elpa_eigenexa.o : ./solver/solver_eigenexa.o ./util/processes.o ./util/matrix_io.o ./util/event_logger.o ./util/eigenpairs_types.o ./util/descriptor_parameters.o ./util/distribute_matrix.o ./util/global_variables.o 
-./main.o : ./solver/verifier.o ./util/eigenpairs_types.o ./util/processes.o ./util/matrix_io.o ./util/command_argument.o ./solver/solver_main.o ./util/global_variables.o ./util/event_logger.o ./util/distribute_matrix.o ./util/fson.o ./util/fson.o ./util/fson.o 
+./verifier.o : ./processes.o ./matrix_io.o ./global_variables.o ./event_logger.o ./eigenpairs_types.o ./distribute_matrix.o ./descriptor_parameters.o ./command_argument.o 
+./command_argument.o : ./processes.o ./global_variables.o ./fson.o ./fson.o ./fson.o 
+./matrix_io.o : ./processes.o ./global_variables.o ./eigenpairs_types.o ./event_logger.o ./descriptor_parameters.o ./command_argument.o 
+./solver_scalapack_select.o : ./processes.o ./eigenpairs_types.o ./distribute_matrix.o ./descriptor_parameters.o 
+./modules.o : ./verifier.o ./solver_scalapack_select.o ./solver_scalapack_all.o ./solver_lapack.o ./solver_elpa_eigenexa.o ./solver_elpa.o ./solver_eigenexa.o ./processes.o ./generalized_to_standard.o ./eigenpairs_types.o ./distribute_matrix.o 
+./event_logger.o : ./global_variables.o ./fson.o ./fson.o ./fson.o 
+./solver_lapack.o : ./eigenpairs_types.o ./distribute_matrix.o ./matrix_io.o 
+./distribute_matrix.o : ./processes.o ./matrix_io.o ./global_variables.o ./event_logger.o ./descriptor_parameters.o ./command_argument.o 
+./main.o : ./verifier.o ./eigenpairs_types.o ./processes.o ./matrix_io.o ./command_argument.o ./solver_main.o ./global_variables.o ./event_logger.o ./distribute_matrix.o ./fson.o ./fson.o ./fson.o 
+./processes.o : ./event_logger.o 
+./solver_eigenexa.o : ./processes.o ./matrix_io.o ./generalized_to_standard.o ./event_logger.o ./eigenpairs_types.o ./descriptor_parameters.o ./distribute_matrix.o 
+./solver_elpa_eigenexa.o : ./solver_eigenexa.o ./processes.o ./matrix_io.o ./event_logger.o ./eigenpairs_types.o ./descriptor_parameters.o ./distribute_matrix.o ./global_variables.o 
+./fson.o : 
+./generalized_to_standard.o : ./processes.o ./event_logger.o ./descriptor_parameters.o 
+./solver_scalapack_all.o : ./matrix_io.o ./processes.o ./generalized_to_standard.o ./event_logger.o ./eigenpairs_types.o ./distribute_matrix.o ./descriptor_parameters.o 
+./solver_main.o : ./solver_elpa_eigenexa.o ./solver_elpa.o ./solver_eigenexa.o ./solver_scalapack_select.o ./solver_scalapack_all.o ./solver_lapack.o ./processes.o ./global_variables.o ./generalized_to_standard.o ./event_logger.o ./eigenpairs_types.o ./distribute_matrix.o ./matrix_io.o ./command_argument.o ./descriptor_parameters.o 
+./solver_elpa.o : ./processes.o ./matrix_io.o ./event_logger.o ./eigenpairs_types.o ./descriptor_parameters.o ./distribute_matrix.o ./global_variables.o 
