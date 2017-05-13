@@ -3,12 +3,12 @@ module ek_solver_eigenexa_m
   use mpi
   use ek_distribute_matrix_m, only : setup_distributed_matrix, distribute_global_sparse_matrix
   use ek_descriptor_parameters_m
-  use ek_eigenpairs_types_m, only : eigenpairs_types_union
+  use ek_eigenpairs_types_m, only : ek_eigenpairs_types_union_t
   use ek_event_logger_m, only : add_event
   use ek_generalized_to_standard_m, only : reduce_generalized, &
        reduce_generalized_new, recovery_generalized
-  use ek_matrix_io_m, only : sparse_mat
-  use ek_processes_m, only : check_master, terminate, process
+  use ek_matrix_io_m, only : ek_sparse_mat_t
+  use ek_processes_m, only : check_master, terminate, ek_process_t
 
   implicit none
 
@@ -23,7 +23,7 @@ contains
     integer, intent(in) :: dim
     integer, intent(out) ::desc_A(desc_size)
     double precision, allocatable, intent(out) :: matrix_A(:, :)
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     integer :: nx, ny, context, info
     double precision :: time_start, time_end
@@ -70,7 +70,7 @@ contains
   subroutine eigen_solver_eigenexa(mat, desc_mat, n_vec, eigenpairs, uplo)
     double precision, intent(inout) :: mat(:, :)
     integer, intent(in) :: desc_mat(desc_size), n_vec
-    type(eigenpairs_types_union), intent(inout) :: eigenpairs
+    type(ek_eigenpairs_types_union_t), intent(inout) :: eigenpairs
     character, intent(in), optional :: uplo
 
     integer :: i, dim, nx, ny, my_rank, ierr
@@ -142,7 +142,7 @@ contains
   subroutine eigen_solver_eigenk(mat, desc_mat, n_vec, eigenpairs, uplo)
     double precision, intent(inout) :: mat(:, :)
     integer, intent(in) :: desc_mat(desc_size), n_vec
-    type(eigenpairs_types_union), intent(inout) :: eigenpairs
+    type(ek_eigenpairs_types_union_t), intent(inout) :: eigenpairs
     character, intent(in), optional :: uplo
 
     integer :: i, dim, nx, ny, my_rank, ierr
@@ -213,15 +213,15 @@ contains
 
   subroutine solve_with_general_scalapack_eigenexa(n, proc, matrix_A, eigenpairs, matrix_B)
     integer, intent(in) :: n
-    type(process), intent(in) :: proc
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in) :: matrix_B
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in) :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     integer :: desc_A(desc_size), desc_B(desc_size), desc_A_re(desc_size)
     integer :: ierr
     double precision, allocatable :: matrix_A_dist(:, :), matrix_B_dist(:, :), matrix_A_redist(:, :)
-    type(eigenpairs_types_union) :: eigenpairs_tmp
+    type(ek_eigenpairs_types_union_t) :: eigenpairs_tmp
     double precision :: time_start, time_start_part, time_end
 
     time_start = mpi_wtime()
@@ -290,14 +290,14 @@ contains
 
   subroutine solve_with_general_scalapack_eigenk(n, proc, matrix_A, eigenpairs, matrix_B)
     integer, intent(in) :: n
-    type(process), intent(in) :: proc
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in) :: matrix_B
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in) :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     integer :: desc_A(desc_size), desc_B(desc_size), desc_A_re(desc_size), ierr
     double precision, allocatable :: matrix_A_dist(:, :), matrix_B_dist(:, :), matrix_A_redist(:, :)
-    type(eigenpairs_types_union) :: eigenpairs_tmp
+    type(ek_eigenpairs_types_union_t) :: eigenpairs_tmp
     double precision :: time_start, time_start_part, time_end
 
     time_start = mpi_wtime()
@@ -366,14 +366,14 @@ contains
 
   subroutine solve_with_general_scalapacknew_eigenk(n, proc, matrix_A, eigenpairs, matrix_B)
     integer, intent(in) :: n
-    type(process), intent(in) :: proc
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in) :: matrix_B
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in) :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     integer :: desc_A(desc_size), desc_B(desc_size), desc_A_re(desc_size), ierr
     double precision, allocatable :: matrix_A_dist(:, :), matrix_B_dist(:, :), matrix_A_redist(:, :)
-    type(eigenpairs_types_union) :: eigenpairs_tmp
+    type(ek_eigenpairs_types_union_t) :: eigenpairs_tmp
     double precision :: time_start, time_start_part, time_end
 
     time_start = mpi_wtime()

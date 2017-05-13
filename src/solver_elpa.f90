@@ -3,12 +3,12 @@ module ek_solver_elpa_m
   use ELPA2
   use mpi
   use ek_global_variables_m, only : g_block_size
-  use ek_distribute_matrix_m, only : process, setup_distributed_matrix, &
+  use ek_distribute_matrix_m, only : ek_process_t, setup_distributed_matrix, &
        gather_matrix, distribute_global_sparse_matrix
   use ek_descriptor_parameters_m
-  use ek_eigenpairs_types_m, only : eigenpairs_types_union
+  use ek_eigenpairs_types_m, only : ek_eigenpairs_types_union_t
   use ek_event_logger_m, only : add_event
-  use ek_matrix_io_m, only : sparse_mat
+  use ek_matrix_io_m, only : ek_sparse_mat_t
   use ek_processes_m, only : check_master, terminate
 
   implicit none
@@ -19,10 +19,10 @@ contains
 
   subroutine solve_with_general_elpa_scalapack(n, proc, matrix_A, eigenpairs, matrix_B)
     integer, intent(in) :: n
-    type(process), intent(in) :: proc
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in), optional :: matrix_B
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in), optional :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     integer :: desc_A(desc_size), desc_A2(desc_size), desc_B(desc_size), &
          block_size, max_block_size, &
@@ -154,10 +154,10 @@ contains
 
   subroutine solve_with_general_elpa1(n, proc, matrix_A, eigenpairs, matrix_B)
     integer, intent(in) :: n
-    type(process), intent(in) :: proc
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in), optional :: matrix_B
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in), optional :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
 
     integer :: desc_A(desc_size), desc_A2(desc_size), desc_B(desc_size), &
          block_size, max_block_size, &
@@ -282,10 +282,10 @@ contains
 
   subroutine solve_with_general_elpa2(n, proc, matrix_A, eigenpairs, matrix_B)
     integer, intent(in) :: n
-    type(process), intent(in) :: proc
-    type(sparse_mat), intent(in) :: matrix_A
-    type(sparse_mat), intent(in), optional :: matrix_B
-    type(eigenpairs_types_union), intent(out) :: eigenpairs
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in), optional :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
     integer :: desc_A(desc_size), desc_A2(desc_size), desc_B(desc_size), &
          block_size, max_block_size, &
          myid, np_rows, np_cols, my_prow, my_pcol, &
