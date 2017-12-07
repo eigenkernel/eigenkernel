@@ -84,7 +84,7 @@ You can see a help message for commandline options by `eigbench -h`.
 - `-i <file>`  Set output file name for ipratios to &lt;file&gt;.
 - `-d <dir>`  Set output files directory for eigenvectors to &lt;dir&gt;.
 - `-l <file>`  Set output file name for elapse time log to &lt;file&gt;
-- `--block-size <n>`  Change block size in the block cyclic distribution.
+- `--block-size <n>`  Change block size in the block cyclic distribution. (default:64)
 - `--dry-run`  Exit before starting eigensolver. Used for testing matrix read and broadcast.
 
 
