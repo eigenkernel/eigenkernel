@@ -1,4 +1,5 @@
 module ek_solver_elpa_m
+  use elpa
   use ELPA1
   use ELPA2
   use mpi
@@ -18,6 +19,7 @@ module ek_solver_elpa_m
 contains
 
   subroutine solve_with_general_elpa_scalapack(n, proc, matrix_A, eigenpairs, matrix_B)
+    class(elpa_t), pointer :: e
     integer, intent(in) :: n
     type(ek_process_t), intent(in) :: proc
     type(ek_sparse_mat_t), intent(in) :: matrix_A
@@ -30,18 +32,19 @@ contains
          na_rows, na_cols, mpi_comm_rows, mpi_comm_cols, &
          pdsyevd_lwork, pdsyevd_liwork, pdsyevd_trilwmin, &
          sc_desc(desc_size), ierr, info, mpierr
-    logical :: success
+
     integer, allocatable :: pdsyevd_iwork(:)
     double precision :: time_start, time_end
     double precision, allocatable :: matrix_A_dist(:, :), matrix_A2_dist(:, :), matrix_B_dist(:, :), pdsyevd_work(:)
-    integer :: numroc
+    integer :: numroc, success
 
     time_start = mpi_wtime()
 
     call mpi_comm_rank(mpi_comm_world, myid, mpierr)
     call blacs_gridinfo(proc%context, np_rows, np_cols, my_prow, my_pcol)
-#if	ELPA_VERSION >= 201502002
-    ierr = get_elpa_row_col_comms(mpi_comm_world, my_prow, my_pcol, &
+
+#if	ELPA_VERSION >= 201705003
+    ierr = elpa_get_communicators(mpi_comm_world, my_prow, my_pcol, &
          mpi_comm_rows, mpi_comm_cols)
 #else
     call get_elpa_row_col_comms(mpi_comm_world, my_prow, my_pcol, &
@@ -70,29 +73,52 @@ contains
     call add_event('solve_with_general_elpa_scalapack:setup_matrices', time_end - time_start)
     time_start = time_end
 
+    if (elpa_init(20170403) /= elpa_ok) then
+      print *, "ELPA API version not supported"
+      stop
+    endif
+    e => elpa_allocate()
+
+    call e%set("na", n, success) !Size of Matrix
+    call e%set("nev", n, success) !Number of eigenvectors to be calculated
+    call e%set("local_nrows", na_rows, success)
+    call e%set("local_ncols", na_cols, success)
+    call e%set("nblk", block_size, success)
+    call e%set("mpi_comm_parent", mpi_comm_world, success)
+    call e%set("process_row", my_prow, success)
+    call e%set("process_col", my_pcol, success)
+    success = e%setup()
+
+    call e%set("solver", elpa_solver_1stage, success)
+
+    time_end = mpi_wtime()
+    call add_event('solve_with_general_elpa_scalapack:setup_parameter', time_end - time_start)
+    time_start = time_end
+
     ! Return of cholesky_real is stored in the upper triangle.
-#if	ELPA_VERSION >= 201502001
-    call cholesky_real(n, matrix_B_dist, na_rows, block_size, mpi_comm_rows, mpi_comm_cols, .true., success)
+#if	ELPA_VERSION >= 201705003
+    call e%cholesky(matrix_B_dist, success)
 #else
     call cholesky_real(n, matrix_B_dist, na_rows, block_size, mpi_comm_rows, mpi_comm_cols, success)
 #endif
-    if (.not. success) then
-      call terminate('solver_main, general_elpa1: cholesky_real failed', ierr)
+
+    if (success == ELPA_ERROR) then
+      call terminate('solver_main, general_elpa_scalapack: cholesky_real failed', ierr)
     end if
 
     time_end = mpi_wtime()
     call add_event('solve_with_general_elpa_scalapack:cholesky_real', time_end - time_start)
     time_start = time_end
 
-#if	ELPA_VERSION >= 201502001
-    call invert_trm_real(n, matrix_B_dist, na_rows, block_size, mpi_comm_rows, mpi_comm_cols, .true., success)
+#if	ELPA_VERSION >= 201705003
+    call e%invert_triangular(matrix_B_dist, success)
 #else
     call invert_trm_real(n, matrix_B_dist, na_rows, block_size, mpi_comm_rows, mpi_comm_cols, success)
 #endif
-    ! invert_trm_real always returns fail
-    !if (.not. success) then
-    !  call terminate('solver_main, general_elpa1: invert_trm_real failed', 1)
-    !end if
+
+    if (success == ELPA_ERROR) then
+      call terminate('solver_main, general_elpa_scalapack: invert_trm_real failed', 1)
+    end if
 
     time_end = mpi_wtime()
     call add_event('solve_with_general_elpa_scalapack:invert_trm_real', time_end - time_start)
@@ -100,13 +126,9 @@ contains
 
     ! Reduce A as U^-T A U^-1
     ! A <- U^-T A
-    ! This operation can be done as below:
-    ! call pdtrmm('Left', 'Upper', 'Trans', 'No_unit', na, na, 1.0d0, &
-    !      b, 1, 1, sc_desc, a, 1, 1, sc_desc)
-    ! but it is slow. Instead use mult_at_b_real.
-    call mult_at_b_real('Upper', 'Full', n, n, &
-         matrix_B_dist, na_rows, matrix_A2_dist, na_rows, &
-         block_size, mpi_comm_rows, mpi_comm_cols, matrix_A_dist, na_rows)
+    call e%hermitian_multiply('U', 'Full', n, &
+          matrix_B_dist, matrix_A2_dist, na_rows, na_cols, &
+          matrix_A_dist, na_rows, na_cols, success)
 
     time_end = mpi_wtime()
     call add_event('solve_with_general_elpa_scalapack:mult_at_b_real', time_end - time_start)
@@ -120,9 +142,6 @@ contains
     call add_event('solve_with_general_elpa_scalapack:pdtrmm_right', time_end - time_start)
     time_start = time_end
 
-    !success = solve_evp_real(n, n, matrix_A_dist, na_rows, &
-    !     eigenpairs%blacs%values, eigenpairs%blacs%Vectors, na_rows, &
-    !     block_size, mpi_comm_rows, mpi_comm_cols)
     pdsyevd_trilwmin = 3 * n + max(block_size * (na_rows + 1), 3 * block_size)
     pdsyevd_lwork = max(1 + 6 * n + 2 * na_rows * na_cols, pdsyevd_trilwmin) + 2 * n
     pdsyevd_liwork = 7 * n + 8 * np_cols + 2
@@ -149,10 +168,14 @@ contains
 
     time_end = mpi_wtime()
     call add_event('solve_with_general_elpa_scalapack:pdtrmm_EV', time_end - time_start)
+
+    call elpa_deallocate(e)
+    call elpa_uninit()
   end subroutine solve_with_general_elpa_scalapack
 
 
   subroutine solve_with_general_elpa1(n, proc, matrix_A, eigenpairs, matrix_B)
+    class(elpa_t), pointer :: e
     integer, intent(in) :: n
     type(ek_process_t), intent(in) :: proc
     type(ek_sparse_mat_t), intent(in) :: matrix_A
@@ -164,18 +187,18 @@ contains
          myid, np_rows, np_cols, my_prow, my_pcol, &
          na_rows, na_cols, mpi_comm_rows, mpi_comm_cols, &
          sc_desc(desc_size), ierr, info, mpierr
-    logical :: success
 
     double precision :: time_start, time_end
     double precision, allocatable :: matrix_A_dist(:, :), matrix_A2_dist(:, :), matrix_B_dist(:, :)
-    integer :: numroc
+    integer :: numroc, success
 
     time_start = mpi_wtime()
 
     call mpi_comm_rank(mpi_comm_world, myid, mpierr)
     call blacs_gridinfo(proc%context, np_rows, np_cols, my_prow, my_pcol)
-#if	ELPA_VERSION >= 201502002
-    ierr = get_elpa_row_col_comms(mpi_comm_world, my_prow, my_pcol, &
+
+#if	ELPA_VERSION >= 201705003
+    ierr = elpa_get_communicators(mpi_comm_world, my_prow, my_pcol, &
          mpi_comm_rows, mpi_comm_cols)
 #else
     call get_elpa_row_col_comms(mpi_comm_world, my_prow, my_pcol, &
@@ -204,29 +227,52 @@ contains
     call add_event('solve_with_general_elpa1:setup_matrices', time_end - time_start)
     time_start = time_end
 
-    ! Return of cholesky_real is stored in the upper triangle.
-#if	ELPA_VERSION >= 201502001
-    call cholesky_real(n, matrix_B_dist, na_rows, block_size, mpi_comm_rows, mpi_comm_cols, .true., success)
+    if (elpa_init(20170403) /= elpa_ok) then
+      print *, "ELPA API version not supported"
+      stop
+    endif
+    e => elpa_allocate()
+
+    call e%set("na", n, success) !Size of Matrix
+    call e%set("nev", n, success) !Number of eigenvectors to be calculated
+    call e%set("local_nrows", na_rows, success)
+    call e%set("local_ncols", na_cols, success)
+    call e%set("nblk", block_size, success)
+    call e%set("mpi_comm_parent", mpi_comm_world, success)
+    call e%set("process_row", my_prow, success)
+    call e%set("process_col", my_pcol, success)
+    success = e%setup()
+
+    call e%set("solver", elpa_solver_1stage, success)
+
+    time_end = mpi_wtime()
+    call add_event('solve_with_general_elpa1:setup_parameter', time_end - time_start)
+    time_start = time_end
+
+    ! Return of cholesky is stored in the upper triangle.
+#if	ELPA_VERSION >= 201705003
+    call e%cholesky(matrix_B_dist, success)
 #else
     call cholesky_real(n, matrix_B_dist, na_rows, block_size, mpi_comm_rows, mpi_comm_cols, success)
 #endif
-    if (.not. success) then
+
+    if (success == ELPA_ERROR) then
       call terminate('solver_main, general_elpa1: cholesky_real failed', ierr)
     end if
-
 
     time_end = mpi_wtime()
     call add_event('solve_with_general_elpa1:cholesky_real', time_end - time_start)
     time_start = time_end
-#if	ELPA_VERSION >= 201502001
-    call invert_trm_real(n, matrix_B_dist, na_rows, block_size, mpi_comm_rows, mpi_comm_cols, .true., success)
+
+#if	ELPA_VERSION >= 201705003
+    call e%invert_triangular(matrix_B_dist, success)
 #else
     call invert_trm_real(n, matrix_B_dist, na_rows, block_size, mpi_comm_rows, mpi_comm_cols, success)
 #endif
-    ! invert_trm_real always returns fail
-    !if (.not. success) then
-    !  call terminate('solver_main, general_elpa1: invert_trm_real failed', 1)
-    !end if
+
+    if (success == ELPA_ERROR) then
+      call terminate('solver_main, general_elpa1: invert_trm_real failed', 1)
+    end if
 
     time_end = mpi_wtime()
     call add_event('solve_with_general_elpa1:invert_trm_real', time_end - time_start)
@@ -234,13 +280,9 @@ contains
 
     ! Reduce A as U^-T A U^-1
     ! A <- U^-T A
-    ! This operation can be done as below:
-    ! call pdtrmm('Left', 'Upper', 'Trans', 'No_unit', na, na, 1.0d0, &
-    !      b, 1, 1, sc_desc, a, 1, 1, sc_desc)
-    ! but it is slow. Instead use mult_at_b_real.
-    call mult_at_b_real('Upper', 'Full', n, n, &
-         matrix_B_dist, na_rows, matrix_A2_dist, na_rows, &
-         block_size, mpi_comm_rows, mpi_comm_cols, matrix_A_dist, na_rows)
+    call e%hermitian_multiply('U', 'Full', n, &
+          matrix_B_dist, matrix_A2_dist, na_rows, na_cols, &
+          matrix_A_dist, na_rows, na_cols, success)
 
     time_end = mpi_wtime()
     call add_event('solve_with_general_elpa1:mult_at_b_real', time_end - time_start)
@@ -254,12 +296,12 @@ contains
     call add_event('solve_with_general_elpa1:pdtrmm_right', time_end - time_start)
     time_start = time_end
 
-    success = solve_evp_real(n, n, matrix_A_dist, na_rows, &
-         eigenpairs%blacs%values, eigenpairs%blacs%Vectors, na_rows, &
-         block_size, mpi_comm_rows, mpi_comm_cols)
-    if (.not. success) then
+    call e%eigenvectors(matrix_A_dist, eigenpairs%blacs%values, eigenpairs%blacs%Vectors, success)
+
+    if (success == ELPA_ERROR) then
       call terminate('solver_main, general_elpa1: solve_evp_real failed', 1)
     endif
+
     call add_event('solve_evp_real:fwd', time_evp_fwd)
     call add_event('solve_evp_real:solve', time_evp_solve)
     call add_event('solve_evp_real:back', time_evp_back)
@@ -277,10 +319,14 @@ contains
 
     time_end = mpi_wtime()
     call add_event('solve_with_general_elpa1:pdtrmm_EV', time_end - time_start)
+
+    call elpa_deallocate(e)
+    call elpa_uninit()
   end subroutine solve_with_general_elpa1
 
 
   subroutine solve_with_general_elpa2(n, proc, matrix_A, eigenpairs, matrix_B)
+    class(elpa_t), pointer :: e
     integer, intent(in) :: n
     type(ek_process_t), intent(in) :: proc
     type(ek_sparse_mat_t), intent(in) :: matrix_A
@@ -291,18 +337,18 @@ contains
          myid, np_rows, np_cols, my_prow, my_pcol, &
          na_rows, na_cols, mpi_comm_rows, mpi_comm_cols, &
          sc_desc(desc_size), ierr, info, mpierr
-    logical :: success
     double precision :: time_start, time_end
     double precision, allocatable :: matrix_A_dist(:, :), matrix_A2_dist(:, :), matrix_B_dist(:, :)
-    integer :: numroc
+    integer :: numroc, success
 
     time_start = mpi_wtime()
 
     call mpi_comm_rank(mpi_comm_world, myid, mpierr)
     call blacs_gridinfo(proc%context, np_rows, np_cols, my_prow, my_pcol)
-#if	ELPA_VERSION >= 201502002
-    ierr = get_elpa_row_col_comms(mpi_comm_world, my_prow, my_pcol, &
-         mpi_comm_rows, mpi_comm_cols)
+
+#if	ELPA_VERSION >= 201705003
+ierr = elpa_get_communicators(mpi_comm_world, my_prow, my_pcol, &
+     mpi_comm_rows, mpi_comm_cols)
 #else
     call get_elpa_row_col_comms(mpi_comm_world, my_prow, my_pcol, &
          mpi_comm_rows, mpi_comm_cols)
@@ -330,13 +376,36 @@ contains
     call add_event('solve_with_general_elpa2:setup_matrices', time_end - time_start)
     time_start = time_end
 
-    ! Return of cholesky_real is stored in the upper triangle.
-#if	ELPA_VERSION >= 201502001
-    call cholesky_real(n, matrix_B_dist, na_rows, block_size, mpi_comm_rows, mpi_comm_cols, .true., success)
+    if (elpa_init(20170403) /= elpa_ok) then
+      print *, "ELPA API version not supported"
+      stop
+    endif
+    e => elpa_allocate()
+
+    call e%set("na", n, success) !Size of Matrix
+    call e%set("nev", n, success) !Number of eigenvectors to be calculated
+    call e%set("local_nrows", na_rows, success)
+    call e%set("local_ncols", na_cols, success)
+    call e%set("nblk", block_size, success)
+    call e%set("mpi_comm_parent", mpi_comm_world, success)
+    call e%set("process_row", my_prow, success)
+    call e%set("process_col", my_pcol, success)
+    success = e%setup()
+
+    call e%set("solver", elpa_solver_2stage, success)
+
+    time_end = mpi_wtime()
+    call add_event('solve_with_general_elpa2:setup_parameter', time_end - time_start)
+    time_start = time_end
+
+    ! Return of cholesky is stored in the upper triangle.
+#if	ELPA_VERSION >= 201705003
+    call e%cholesky(matrix_B_dist, success)
 #else
     call cholesky_real(n, matrix_B_dist, na_rows, block_size, mpi_comm_rows, mpi_comm_cols, success)
 #endif
-    if (.not. success) then
+
+    if (success == ELPA_ERROR) then
       call terminate('solver_main, general_elpa2: cholesky_real failed', ierr)
     end if
 
@@ -344,15 +413,15 @@ contains
     call add_event('solve_with_general_elpa2:cholesky_real', time_end - time_start)
     time_start = time_end
 
-#if	ELPA_VERSION >= 201502001
-    call invert_trm_real(n, matrix_B_dist, na_rows, block_size, mpi_comm_rows, mpi_comm_cols, .true., success)
+#if	ELPA_VERSION >= 201705003
+    call e%invert_triangular(matrix_B_dist, success)
 #else
     call invert_trm_real(n, matrix_B_dist, na_rows, block_size, mpi_comm_rows, mpi_comm_cols, success)
 #endif
-    ! invert_trm_real always returns fail
-    !if (.not. success) then
-    !  call terminate('solver_main, general_elpa2: invert_trm_real failed', 1)
-    !end if
+
+    if (success == ELPA_ERROR) then
+      call terminate('solver_main, general_elpa2: invert_trm_real failed', 1)
+    end if
 
     time_end = mpi_wtime()
     call add_event('solve_with_general_elpa2:invert_trm_real', time_end - time_start)
@@ -360,13 +429,9 @@ contains
 
     ! Reduce A as U^-T A U^-1
     ! A <- U^-T A
-    ! This operation can be done as below:
-    ! call pdtrmm('Left', 'Upper', 'Trans', 'No_unit', na, na, 1.0d0, &
-    !      b, 1, 1, sc_desc, a, 1, 1, sc_desc)
-    ! but it is slow. Instead use mult_at_b_real.
-    call mult_at_b_real('Upper', 'Full', n, n, &
-         matrix_B_dist, na_rows, matrix_A2_dist, na_rows, &
-         block_size, mpi_comm_rows, mpi_comm_cols, matrix_A_dist, na_rows)
+    call e%hermitian_multiply('U', 'Full', n, &
+          matrix_B_dist, matrix_A2_dist, na_rows, na_cols, &
+          matrix_A_dist, na_rows, na_cols, success)
 
     time_end = mpi_wtime()
     call add_event('solve_with_general_elpa2:mult_at_b_real', time_end - time_start)
@@ -380,12 +445,12 @@ contains
     call add_event('solve_with_general_elpa2:pdtrmm_right', time_end - time_start)
     time_start = time_end
 
-    success = solve_evp_real_2stage(n, n, matrix_A_dist, na_rows, &
-         eigenpairs%blacs%values, eigenpairs%blacs%Vectors, na_rows, &
-         block_size, mpi_comm_rows, mpi_comm_cols, mpi_comm_world)
-    if (.not. success) then
+    call e%eigenvectors(matrix_A_dist, eigenpairs%blacs%values, eigenpairs%blacs%Vectors, success)
+
+    if (success == ELPA_ERROR) then
       call terminate('solver_main, general_elpa2: solve_evp_real failed', 1)
     endif
+
     call add_event('solve_evp_real_2stage:fwd', time_evp_fwd)
     call add_event('solve_evp_real_2stage:solve', time_evp_solve)
     call add_event('solve_evp_real_2stage:back', time_evp_back)
@@ -403,5 +468,8 @@ contains
 
     time_end = mpi_wtime()
     call add_event('solve_with_general_elpa2:pdtrmm_EV', time_end - time_start)
+
+    call elpa_deallocate(e)
+    call elpa_uninit()
   end subroutine solve_with_general_elpa2
 end module ek_solver_elpa_m
