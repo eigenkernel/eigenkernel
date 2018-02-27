@@ -25,7 +25,7 @@ After executing eigbench, there are output files named `eigenvalues.dat`, `iprat
 When you need eigenvectors, 
 you should specify the index range to be output by `-p` option. For example, 
  
-    mpirun -np 4 bin/eigbench -s general_scalapack -d vector/ -p 1-400 matrix/ELSES_MATRIX_BNZ30_A.mtx matrix/ELSES_MATRIX_BNZ30_B.mtx
+    mpirun -np 4 bin/eigbench -s general_scalapack -d vector/ -p 1-30 matrix/ELSES_MATRIX_BNZ30_A.mtx matrix/ELSES_MATRIX_BNZ30_B.mtx
  
 We should note that the directory `vector/` must be created before execution. 
 
