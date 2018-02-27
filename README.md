@@ -16,7 +16,7 @@ Test following commands to solve a generalized eigenvalue problem with the matri
     cd eigenkernel-*
     cp Makefile.in.gfortran.noext Makefile.in
     make
-The application appears as bin/eigbench. You can run the application, for example, as 
+The mini-application appears as bin/eigbench. You can run the application, for example, as 
 
     mpirun -np 4 bin/eigbench -s general_scalapack matrix/ELSES_MATRIX_BNZ30_A.mtx matrix/ELSES_MATRIX_BNZ30_B.mtx
 
