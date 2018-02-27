@@ -4,12 +4,12 @@
 EigenKernel is a package of hybrid parallel solvers for (standard / generalized) real-symmetric eigenvalue problems.
 Here 'hybrid solver' means combination of high-performance routines from the distributed parallel numerical linear algebra libraries, ScaLAPACK, ELPA and EigenExa. You can test various combination of routines from a unique interface and find the best one for your problem and machine environment.
 
-EigenKernel also works as a mini-application (stand alone eigenvalue problem solver), named EigenKernel_App. This note shows usage of EigenBench shortly.
+EigenKernel also works as a mini-application (stand alone eigenvalue problem solver), named EigenKernel_App. This note shows usage of EigenKernel_App shortly.
 
-EigenBench requires input matrix data in [the MatrixMarket file format](http://math.nist.gov/MatrixMarket/). Sample data files are stored in the `matrix/` directory. These are part of [ELSES matrix library](http://www.elses.jp/matrix/).
+EigenKernel_App requires input matrix data in [the MatrixMarket file format](http://math.nist.gov/MatrixMarket/). Sample data files are stored in the `matrix/` directory. These are part of [ELSES matrix library](http://www.elses.jp/matrix/).
 
 ## Quick start
-You can build EigenBench only with ScaLAPACK (without ELPA and EigenExa).
+You can build EigenKernel_App only with ScaLAPACK (without ELPA and EigenExa).
 Test following commands to solve a generalized eigenvalue problem with the matrix size of M = 30. The sample Makefile.in supposes there are mpif90 over gfortran as a fortran compiler and libgomp as an OpenMP library.
 
     tar zxvf eigenkernel-*.tar.gz
@@ -84,7 +84,7 @@ Names of available solvers are listed below. `general_scalapack` and `general_el
 
 
 ## Useful commandline options (output eigenvectors, check accuracy, change default output filename)
-You can see a help message for commandline options by `eigbench -h`.
+You can see a help message for commandline options by `eigenkernel_app -h`.
 
 - `-n <num>`  This option can be used only with 'selecting' solvers. Compute only &lt;num&gt; eigenpairs in ascending order of their eigenvalues.
 - `-p <num1>[-<num2>][,<num3>[-<num4>]]...`  Specify index ranges of eigenvectors to be output. No eigenvectors are output in default. Eigenvectors are output from all the MPI processes evenly. The maximum number of index ranges is 100.
