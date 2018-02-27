@@ -16,11 +16,12 @@ Test following commands to solve a generalized eigenvalue problem with the matri
     cd eigenkernel-*
     cp Makefile.in.gfortran.noext Makefile.in
     make
+    
 The mini-application appears as bin/eigenkernel_app. You can run the application, for example, as 
 
     mpirun -np 4 bin/eigenkernel_app -s general_scalapack matrix/ELSES_MATRIX_BNZ30_A.mtx matrix/ELSES_MATRIX_BNZ30_B.mtx
 
-After executing eigbench, there are output files named `eigenvalues.dat`, `ipratios.dat`, `log.json`. eigenvalues.dat and ipratios.dat contain computed eigenvalues and inversed participation ratios of computed eigenvectors respectively. log.json contains execution information such as given commandline options in the JSON format.
+and obtain the output files named `eigenvalues.dat`, `ipratios.dat`, `log.json`. eigenvalues.dat and ipratios.dat contain computed eigenvalues and inversed participation ratios of computed eigenvectors respectively. log.json contains execution information such as given commandline options in the JSON format.
 
 When you need eigenvectors, 
 you should specify the index range to be output by `-p` option. For example, 
