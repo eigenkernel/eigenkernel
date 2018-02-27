@@ -41,7 +41,7 @@ You must build and link ELPA and EigenExa to utilize full functions of EIgenBenc
 
 [ELPA official page](http://elpa.rzg.mpg.de/)
 
-[EigenExa official page](http://www.aics.riken.jp/labs/lpnctrt/EigenExa_e.html)
+[EigenExa official page](http://www.aics.riken.jp/labs/lpnctrt/en/projects/eigenexa/)
 
 After installing them, edit Makefile.in (sample found in Makefile.in.gfortran.withext) and set `LIBS` variable properly to indicate the paths where .a and .mod are installed.
 Then you should rebuild EigenBench with ELPA and EigenExa like below.
