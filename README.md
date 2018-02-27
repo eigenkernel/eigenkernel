@@ -38,14 +38,14 @@ You can also solve standard eigenvalue problems.
 
 
 ## Link with ELPA and EigenExa
-You must build and link ELPA and EigenExa to utilize full functions of EIgenBench. Follow installation instructions in each library.
+You must build and link ELPA and EigenExa to utilize full functions of EigenKernel_App. Follow installation instructions in each library.
 
 [ELPA official page](http://elpa.rzg.mpg.de/)
 
 [EigenExa official page](http://www.aics.riken.jp/labs/lpnctrt/en/projects/eigenexa/)
 
 After installing them, edit Makefile.in (sample found in Makefile.in.gfortran.withext) and set `LIBS` variable properly to indicate the paths where .a and .mod are installed.
-Then you should rebuild EigenBench with ELPA and EigenExa like below.
+Then you should rebuild EigenKernel_App with ELPA and EigenExa like below.
 
     emacs Makefile.in  # Edit $LIBS properly
     make clean
@@ -88,7 +88,7 @@ You can see a help message for commandline options by `eigenkernel_app -h`.
 
 - `-n <num>`  This option can be used only with 'selecting' solvers. Compute only &lt;num&gt; eigenpairs in ascending order of their eigenvalues.
 - `-p <num1>[-<num2>][,<num3>[-<num4>]]...`  Specify index ranges of eigenvectors to be output. No eigenvectors are output in default. Eigenvectors are output from all the MPI processes evenly. The maximum number of index ranges is 100.
-- `-c <num>`  Calculate residual norm of eigenvectors whose index is from 1 to &lt;num&gt; (included). If num == -1, EigenBench calculates all the eigenvectors. No eigenvectors are checked in default.
+- `-c <num>`  Calculate residual norm of eigenvectors whose index is from 1 to &lt;num&gt; (included). If num == -1, EigenKernel_App calculates all the eigenvectors. No eigenvectors are checked in default.
 - `-t <num1>,<num2>`  Calculate orthogonality of eigenvectors whose index is from &lt;num1&gt; to &lt;num2&gt; (included). No eigenvectors are checked in default.
 - `-o <file>`  Set output file name for eigenvalues to &lt;file&gt;.
 - `-i <file>`  Set output file name for ipratios to &lt;file&gt;.
