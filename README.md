@@ -23,9 +23,9 @@ The application appears as bin/eigbench. You can run the application, for exampl
 After executing eigbench, there are output files named `eigenvalues.dat`, `ipratios.dat`, `log.json`. eigenvalues.dat and ipratios.dat contain computed eigenvalues and inversed participation ratios of computed eigenvectors respectively. log.json contains execution information such as given commandline options in the JSON format.
 
 When you need eigenvectors, 
-you need to specify an index range of eigenvectors to be output by `-p` option. For example, 
+you should specify the index range to be output by `-p` option. For example, 
  
-    mpirun -np 4 bin/eigbench -s general_scalapack -d vector/ -l timw.dat -p 1-400 matrix/ELSES_MATRIX_BNZ30_A.mtx matrix/ELSES_MATRIX_BNZ30_B.mtx
+    mpirun -np 4 bin/eigbench -s general_scalapack -d vector/ -p 1-400 matrix/ELSES_MATRIX_BNZ30_A.mtx matrix/ELSES_MATRIX_BNZ30_B.mtx
  
 We should note that the directory `vector/` must be created before execution. 
 
