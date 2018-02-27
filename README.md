@@ -18,14 +18,14 @@ Test following commands to solve a generalized eigenvalue problem with the matri
     make
 The mini-application appears as bin/eigbench. You can run the application, for example, as 
 
-    mpirun -np 4 bin/eigbench -s general_scalapack matrix/ELSES_MATRIX_BNZ30_A.mtx matrix/ELSES_MATRIX_BNZ30_B.mtx
+    mpirun -np 4 bin/eigenkernel_app -s general_scalapack matrix/ELSES_MATRIX_BNZ30_A.mtx matrix/ELSES_MATRIX_BNZ30_B.mtx
 
 After executing eigbench, there are output files named `eigenvalues.dat`, `ipratios.dat`, `log.json`. eigenvalues.dat and ipratios.dat contain computed eigenvalues and inversed participation ratios of computed eigenvectors respectively. log.json contains execution information such as given commandline options in the JSON format.
 
 When you need eigenvectors, 
 you should specify the index range to be output by `-p` option. For example, 
  
-    mpirun -np 4 bin/eigbench -s general_scalapack -d vector/ -p 1-30 matrix/ELSES_MATRIX_BNZ30_A.mtx matrix/ELSES_MATRIX_BNZ30_B.mtx
+    mpirun -np 4 bin/eigenkernel_app -s general_scalapack -d vector/ -p 1-30 matrix/ELSES_MATRIX_BNZ30_A.mtx matrix/ELSES_MATRIX_BNZ30_B.mtx
  
 We should note that the directory `vector/` must be created before execution. 
 
@@ -33,7 +33,7 @@ In the execution command `-s <solver>` is a mandatory option to specify the solv
 
 You can also solve standard eigenvalue problems.
 
-    mpirun -np 4 bin/eigbench -s scalapack matrix/ELSES_MATRIX_VCNT400std_A.mtx
+    mpirun -np 4 bin/eigenkernel_app -s scalapack matrix/ELSES_MATRIX_VCNT400std_A.mtx
 
 
 ## Link with ELPA and EigenExa
@@ -52,7 +52,7 @@ Then you should rebuild EigenBench with ELPA and EigenExa like below.
 
 If the rebuild is succeeded, now you can select truly hybrid solvers in the `-s` option.
 
-    mpirun -np 4 bin/eigbench -s general_elpa_eigensx matrix/ELSES_MATRIX_VCNT900_A.mtx matrix/ELSES_MATRIX_VCNT900_B.mtx
+    mpirun -np 4 bin/eigenkernel_app -s general_elpa_eigensx matrix/ELSES_MATRIX_VCNT900_A.mtx matrix/ELSES_MATRIX_VCNT900_B.mtx
 
 In log.json (this default filename can be changed with `-l <filename>` option) you can find whole computation time in an element of the array `events` whose `name` is `main`. More detailed time consumption for each subprocedure is also reported. You can compare the solvers with these information.
 
