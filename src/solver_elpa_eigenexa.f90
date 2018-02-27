@@ -1,6 +1,8 @@
 module ek_solver_elpa_eigenexa_m
   use elpa
-  use eigen_libs
+! use eigen_libs
+  use eigen_libs_mod
+  use eigen_blacs_mod
   use ELPA1
   use ELPA2
   use mpi

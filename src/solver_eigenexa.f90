@@ -1,5 +1,7 @@
 module ek_solver_eigenexa_m
-  use eigen_libs
+! use eigen_libs
+  use eigen_libs_mod
+  use eigen_blacs_mod
   use mpi
   use ek_distribute_matrix_m, only : setup_distributed_matrix, distribute_global_sparse_matrix
   use ek_descriptor_parameters_m
