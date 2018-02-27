@@ -16,9 +16,18 @@ Test following commands to solve a generalized eigenvalue problem with the matri
     cd eigenkernel-*
     cp Makefile.in.gfortran.noext Makefile.in
     make
+The application appears as bin/eigbench. You can run the application, for example, as 
+
     mpirun -np 4 bin/eigbench -s general_scalapack matrix/ELSES_MATRIX_BNZ30_A.mtx matrix/ELSES_MATRIX_BNZ30_B.mtx
 
 After executing eigbench, there are output files named `eigenvalues.dat`, `ipratios.dat`, `log.json`. eigenvalues.dat and ipratios.dat contain computed eigenvalues and inversed participation ratios of computed eigenvectors respectively. log.json contains execution information such as given commandline options in the JSON format.
+
+When you need eigenvectors, 
+you need to specify an index range of eigenvectors to be output by `-p` option. For example, 
+ 
+ mpirun -np 4 bin/eigbench -s scalapack -d vector/ -l timw.dat -p 1-400 matrix/ELSES_MATRIX_VCNT400std_A.mtx
+
+We should note that the directory `vector/` must be created before execution. 
 
 In the execution command `-s <solver>` is a mandatory option to specify the solver routine. The general_scalapack solver is, of course, a pure ScaLAPACK solver. The last two arguments are paths to input matrix files in the Matrix Market format. Note that the input matrices must be symmetric and moreover the latter one must be positive definite (only real-valued matrices are supported now).
 
