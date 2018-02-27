@@ -25,8 +25,8 @@ After executing eigbench, there are output files named `eigenvalues.dat`, `iprat
 When you need eigenvectors, 
 you need to specify an index range of eigenvectors to be output by `-p` option. For example, 
  
- mpirun -np 4 bin/eigbench -s scalapack -d vector/ -l timw.dat -p 1-400 matrix/ELSES_MATRIX_VCNT400std_A.mtx
-
+    mpirun -np 4 bin/eigbench -s general_scalapack -d vector/ -l timw.dat -p 1-400 matrix/ELSES_MATRIX_BNZ30_A.mtx matrix/ELSES_MATRIX_BNZ30_B.mtx
+ 
 We should note that the directory `vector/` must be created before execution. 
 
 In the execution command `-s <solver>` is a mandatory option to specify the solver routine. The general_scalapack solver is, of course, a pure ScaLAPACK solver. The last two arguments are paths to input matrix files in the Matrix Market format. Note that the input matrices must be symmetric and moreover the latter one must be positive definite (only real-valued matrices are supported now).
