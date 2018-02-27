@@ -4,7 +4,7 @@
 EigenKernel is a package of hybrid parallel solvers for (standard / generalized) real-symmetric eigenvalue problems.
 Here 'hybrid solver' means combination of high-performance routines from the distributed parallel numerical linear algebra libraries, ScaLAPACK, ELPA and EigenExa. You can test various combination of routines from a unique interface and find the best one for your problem and machine environment.
 
-EigenKernel also works as a mini-application (stand alone eigenvalue problem solver), named EIgenBench. This note shows usage of EigenBench shortly.
+EigenKernel also works as a mini-application (stand alone eigenvalue problem solver), named EigenKernel_App. This note shows usage of EigenBench shortly.
 
 EigenBench requires input matrix data in [the MatrixMarket file format](http://math.nist.gov/MatrixMarket/). Sample data files are stored in the `matrix/` directory. These are part of [ELSES matrix library](http://www.elses.jp/matrix/).
 
