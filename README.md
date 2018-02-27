@@ -88,10 +88,10 @@ You can see a help message for commandline options by `eigbench -h`.
 - `--dry-run`  Exit before starting eigensolver. Used for testing matrix read and broadcast.
 
 
-## Build with old versions of ELPA
-You can build EigenBench with old versions of ELPA. For example, when you want to use elpa-2014.06.001, execute make as follows.
-
-    make WITH_EIGENEXA=1 WITH_ELPA=1 ELPA_VERSION=201406001
+## Supported ELPA and EigenExa versions 
+The master branch of EigenKernel supports
+- ELPA: elpa-2014.06.001
+- EigenExa: EigenExa 2.3c
 
 
 ## Reference
