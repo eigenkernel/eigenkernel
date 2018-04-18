@@ -287,6 +287,16 @@ contains
     call blacs_gridinfo(context, n_procs_row, n_procs_col, my_proc_row, my_proc_col)
 
     if (my_proc_row == dest_row .and. my_proc_col == dest_col) then
+      if (mb < 1) then
+        ierr=1
+        write(*,*) 'ERROR:gather_matrix_part: mb=',mb
+        call terminate('ERROR:gather_matrix_part: error in mb', ierr)
+      endif
+      if (nb < 1) then
+        ierr=1
+        write(*,*) 'ERROR:gather_matrix_part: nb=',nb
+        call terminate('ERROR:gather_matrix_part: error in nb', ierr)
+      endif
       buf_size_row = numroc(rows, mb, 0, 0, n_procs_row)
       buf_size_col = numroc(cols, nb, 0, 0, n_procs_col)
       allocate(recv_buf(buf_size_row, buf_size_col), stat = ierr)
