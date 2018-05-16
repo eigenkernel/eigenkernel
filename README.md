@@ -102,6 +102,9 @@ You can see a help message for commandline options by `eigenkernel_app -h`.
 The master branch of EigenKernel supports
 - ELPA: elpa-2014.06.001
 - EigenExa: EigenExa 2.3c
+The developer branch supports
+- ELPA: elpa-2017.05.003
+- EigenExa: EigenExa 2.4p1
 
 
 ## Reference
