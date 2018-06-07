@@ -109,7 +109,9 @@ The developer branch supports
 
 
 ## Reference
-H. Imachi and T. Hoshi, '[Hybrid numerical solvers for massively parallel eigenvalue computation and their benchmark with electronic structure calculations](https://www.jstage.jst.go.jp/article/ipsjjip/24/1/24_164/_article)', J. Inf. Process. 24, pp. 164 -- 172 (2016).
+[1] H. Imachi and T. Hoshi, '[Hybrid numerical solvers for massively parallel eigenvalue computation and their benchmark with electronic structure calculations](https://www.jstage.jst.go.jp/article/ipsjjip/24/1/24_164/_article)', J. Inf. Process. 24, pp. 164 -- 172 (2016).
+
+[2] K.Tanaka, H. Imachi, T. Fukumoto, T. Fukaya, Y. Yamamoto, T. Hoshi, 'EigenKernel - A middleware for parallel generalized eigenvalue solvers to attain high scalability and usability', submitted; Preprint: http://arxiv.org/abs/1806.00741
 
 If you use the present software in an academic publication, please cite the above reference.
 
