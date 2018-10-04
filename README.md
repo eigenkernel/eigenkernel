@@ -103,6 +103,10 @@ The master branch of EigenKernel supports
 - ELPA: elpa-2014.06.001
 - EigenExa: EigenExa 2.3c
 
+The developer branch supports
+- ELPA: elpa-2017.05.003
+- EigenExa: EigenExa 2.4p1
+
 
 ## Reference
 [1] H. Imachi and T. Hoshi, '[Hybrid numerical solvers for massively parallel eigenvalue computation and their benchmark with electronic structure calculations](https://www.jstage.jst.go.jp/article/ipsjjip/24/1/24_164/_article)', J. Inf. Process. 24, pp. 164 -- 172 (2016).
