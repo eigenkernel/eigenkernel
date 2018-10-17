@@ -79,8 +79,8 @@ Names of available solvers are listed below. `general_scalapack` and `general_el
 - general_scalapack_eigens (generalized) -- reduction with PDPOTRF & PDSYGST, solve SEP with eigen_s
 
 ### solvers need both of ELPA and EigenExa
-- general_elpa_eigensx (generalized) -- reduction with ELPA, solve SEP with eigen_sx; The solver 'H' in our papers [1,2]
-- general_elpa_eigens (generalized) -- reduction with ELPA, solve SEP with eigen_s; The solver 'G' in our papers [1,2]
+- general_elpa_eigensx (generalized) -- reduction with ELPA, solve SEP with eigen_sx; The solver 'G' in our papers [1,2]
+- general_elpa_eigens (generalized) -- reduction with ELPA, solve SEP with eigen_s; The solver 'F' in our papers [1,2]
 
 
 ## Useful commandline options (output eigenvectors, check accuracy, change default output filename)
