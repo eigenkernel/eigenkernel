@@ -21,7 +21,7 @@ contains
 
   subroutine eigen_solver(arg, matrix_A, eigenpairs, proc, matrix_B)
     use ek_solver_lapack_m, only : eigen_solver_lapack
-    use ek_solver_scalapack_all_m, only : eigen_solver_scalapack_all, solve_with_general_scalapack
+    use ek_solver_scalapack_all_m, only : eigen_solver_scalapack_all, solve_with_general_scalapack, solve_with_general_scalapacknew
     use ek_solver_scalapack_select_m, only : eigen_solver_scalapack_select
     use ek_solver_eigenexa_m, only : setup_distributed_matrix_for_eigenexa, &
          eigen_solver_eigenexa, eigen_solver_eigenk, &
@@ -63,6 +63,8 @@ contains
            arg%n_vec, eigenpairs)
     case ('general_scalapack')
       call solve_with_general_scalapack(n, proc, matrix_A, eigenpairs, matrix_B)
+    case ('general_scalapacknew')
+      call solve_with_general_scalapacknew(n, proc, matrix_A, eigenpairs, matrix_B)
     case ('general_scalapack_select')
       call setup_distributed_matrix('A', proc, n, n, desc_A, matrix_A_dist)
       call setup_distributed_matrix('B', proc, n, n, desc_B, matrix_B_dist)

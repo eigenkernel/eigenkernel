@@ -6,13 +6,13 @@ module ek_solver_scalapack_all_m
        distribute_global_sparse_matrix
   use ek_eigenpairs_types_m, only : ek_eigenpairs_types_union_t
   use ek_event_logger_m, only : add_event
-  use ek_generalized_to_standard_m, only : reduce_generalized, recovery_generalized
+  use ek_generalized_to_standard_m, only : reduce_generalized, reduce_generalized_new, recovery_generalized
   use ek_processes_m, only : check_master, ek_process_t, terminate
   use ek_matrix_io_m, only : ek_sparse_mat_t
   implicit none
 
   private
-  public :: eigen_solver_scalapack_all, solve_with_general_scalapack
+  public :: eigen_solver_scalapack_all, solve_with_general_scalapack, solve_with_general_scalapacknew
 
 contains
 
@@ -122,6 +122,50 @@ contains
     call add_event('eigen_solver_scalapack_all:pdormtr', time_end - time_start_part)
     call add_event('eigen_solver_scalapack_all', time_end - time_start)
   end subroutine eigen_solver_scalapack_all
+
+
+  subroutine solve_with_general_scalapacknew(n, proc, matrix_A, eigenpairs, matrix_B)
+    integer, intent(in) :: n
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in) :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
+
+    integer :: desc_A(desc_size), desc_B(desc_size)
+    double precision, allocatable :: matrix_A_dist(:, :), matrix_B_dist(:, :)
+    double precision :: time_start, time_start_part, time_end
+
+    time_start = mpi_wtime()
+    time_start_part = time_start
+
+    call setup_distributed_matrix('A', proc, n, n, desc_A, matrix_A_dist)
+    call setup_distributed_matrix('B', proc, n, n, desc_B, matrix_B_dist)
+    call distribute_global_sparse_matrix(matrix_A, desc_A, matrix_A_dist)
+    call distribute_global_sparse_matrix(matrix_B, desc_B, matrix_B_dist)
+
+    time_end = mpi_wtime()
+    call add_event('solve_with_general_scalapacknew:setup_matrices', time_end - time_start_part)
+    time_start_part = time_end
+
+    call reduce_generalized_new(n, matrix_A_dist, desc_A, matrix_B_dist, desc_B)
+
+    time_end = mpi_wtime()
+    call add_event('solve_with_general_scalapacknew:reduce_generalized', time_end - time_start_part)
+    time_start_part = time_end
+
+    call eigen_solver_scalapack_all(proc, desc_A, matrix_A_dist, eigenpairs)
+
+    time_end = mpi_wtime()
+    call add_event('solve_with_general_scalapacknew:eigen_solver_scalapack_all', time_end - time_start_part)
+    time_start_part = time_end
+
+    call recovery_generalized(n, n, matrix_B_dist, desc_B, &
+         eigenpairs%blacs%Vectors, eigenpairs%blacs%desc)
+
+    time_end = mpi_wtime()
+    call add_event('solve_with_general_scalapacknew:recovery_generalized', time_end - time_start_part)
+    call add_event('solve_with_general_scalapacknew', time_end - time_start)
+  end subroutine solve_with_general_scalapacknew
 
 
   subroutine solve_with_general_scalapack(n, proc, matrix_A, eigenpairs, matrix_B)
