@@ -66,7 +66,6 @@ Names of available solvers are listed below. `general_scalapack` and `general_el
 - scalapack_select (standard, selecting) -- PDSYEVX
 - general_scalapack (generalized) -- reduction with PDPOTRF & PDSYGST; The solver 'A' in our papers [1,2]
 - general_scalapack_select (generalized, selecting)
-- general_scalapacknew_eigens (generalized) -- reduction with PDPOTRF & PDSYNGST
 
 ### solvers need ELPA
 - general_elpa_scalapack (generalized) -- reduction with ELPA, solve SEP with PDSYEVD; The solver 'C' in our papers [1,2]
@@ -77,6 +76,7 @@ Names of available solvers are listed below. `general_scalapack` and `general_el
 - eigensx (standard)
 - general_scalapack_eigensx (generalized) -- reduction with PDPOTRF & PDSYGST, solve SEP with eigen_sx; The solver 'B' in our papers [1,2]
 - general_scalapack_eigens (generalized) -- reduction with PDPOTRF & PDSYGST, solve SEP with eigen_s
+- general_scalapacknew_eigens (generalized) -- reduction with PDPOTRF & PDSYNGST
 
 ### solvers need both of ELPA and EigenExa
 - general_elpa_eigensx (generalized) -- reduction with ELPA, solve SEP with eigen_sx; The solver 'G' in our papers [1,2]
