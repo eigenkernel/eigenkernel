@@ -146,6 +146,8 @@ contains
       is_solver_valid = .not. arg%is_generalized_problem
     case ('general_scalapack')
       is_solver_valid = arg%is_generalized_problem
+    case ('general_scalapacknew')
+      is_solver_valid = arg%is_generalized_problem
     case ('general_scalapack_select')
       is_solver_valid = arg%is_generalized_problem
     case ('eigensx')

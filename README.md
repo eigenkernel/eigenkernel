@@ -16,19 +16,19 @@ Test following commands to solve a generalized eigenvalue problem with the matri
     cd eigenkernel-*
     cp Makefile.in.gfortran.noext Makefile.in
     make
-    
-The mini-application appears as bin/eigenkernel_app. You can run the application, for example, as 
+
+The mini-application appears as bin/eigenkernel_app. You can run the application, for example, as
 
     mpirun -np 4 bin/eigenkernel_app -s general_scalapack matrix/ELSES_MATRIX_BNZ30_A.mtx matrix/ELSES_MATRIX_BNZ30_B.mtx
 
 and obtain the output files named `eigenvalues.dat`, `ipratios.dat`, `log.json`. eigenvalues.dat and ipratios.dat contain computed eigenvalues and inversed participation ratios of computed eigenvectors respectively. log.json contains execution information such as given commandline options in the JSON format.
 
-When you need eigenvectors, 
-you should specify the index range to be output by `-p` option. For example, 
- 
+When you need eigenvectors,
+you should specify the index range to be output by `-p` option. For example,
+
     mpirun -np 4 bin/eigenkernel_app -s general_scalapack -d vector/ -p 1-30 matrix/ELSES_MATRIX_BNZ30_A.mtx matrix/ELSES_MATRIX_BNZ30_B.mtx
- 
-We should note that the directory `vector/` must be created before execution. 
+
+We should note that the directory `vector/` must be created before execution.
 
 In the execution command `-s <solver>` is a mandatory option to specify the solver routine. The general_scalapack solver is, of course, a pure ScaLAPACK solver. The last two arguments are paths to input matrix files in the Matrix Market format. Note that the input matrices must be symmetric and moreover the latter one must be positive definite (only real-valued matrices are supported now).
 
@@ -66,7 +66,7 @@ Names of available solvers are listed below. `general_scalapack` and `general_el
 - scalapack_select (standard, selecting) -- PDSYEVX
 - general_scalapack (generalized) -- reduction with PDPOTRF & PDSYGST; The solver 'A' in our papers [1,2]
 - general_scalapack_select (generalized, selecting)
-- general_scalapacknew_eigens (generalized) -- reduction with PDPOTRF & PDSYNGST
+- general_scalapacknew (generalized) -- reduction with PDPOTRF & PDSYNGST
 
 ### solvers need ELPA
 - general_elpa_scalapack (generalized) -- reduction with ELPA, solve SEP with PDSYEVD; The solver 'C' in our papers [1,2]
@@ -77,6 +77,7 @@ Names of available solvers are listed below. `general_scalapack` and `general_el
 - eigensx (standard)
 - general_scalapack_eigensx (generalized) -- reduction with PDPOTRF & PDSYGST, solve SEP with eigen_sx; The solver 'B' in our papers [1,2]
 - general_scalapack_eigens (generalized) -- reduction with PDPOTRF & PDSYGST, solve SEP with eigen_s
+- general_scalapacknew_eigens (generalized) -- reduction with PDPOTRF & PDSYNGST
 
 ### solvers need both of ELPA and EigenExa
 - general_elpa_eigensx (generalized) -- reduction with ELPA, solve SEP with eigen_sx; The solver 'G' in our papers [1,2]
@@ -98,7 +99,7 @@ You can see a help message for commandline options by `eigenkernel_app -h`.
 - `--dry-run`  Exit before starting eigensolver. Used for testing matrix read and broadcast.
 
 
-## Supported ELPA and EigenExa versions 
+## Supported ELPA and EigenExa versions
 The current master branch (v．2018) supports
 - ELPA: elpa-2018.05.001
 - EigenExa: EigenExa 2.4b
