@@ -10,11 +10,11 @@ EigenKernel_App requires input matrix data in [the MatrixMarket file format](htt
 
 ## Quick start
 You can build EigenKernel_App only with ScaLAPACK (without ELPA and EigenExa).
-Test following commands to solve a generalized eigenvalue problem with the matrix size of M = 30. The sample Makefile.in supposes there are mpif90 over gfortran as a fortran compiler and libgomp as an OpenMP library.
+Test following commands to solve a generalized eigenvalue problem with the matrix size of M = 30. The sample Makefile.inc supposes there are mpif90 over gfortran as a fortran compiler and libgomp as an OpenMP library.
 
     tar zxvf eigenkernel-*.tar.gz
     cd eigenkernel-*
-    cp Makefile.in.gfortran.noext Makefile.in
+    cp Makefile.inc.gfortran.noext Makefile.inc
     make
 
 The mini-application appears as bin/eigenkernel_app. You can run the application, for example, as
@@ -44,10 +44,10 @@ You must build and link ELPA and EigenExa to utilize full functions of EigenKern
 
 [EigenExa official page](http://www.aics.riken.jp/labs/lpnctrt/en/projects/eigenexa/)
 
-After installing them, edit Makefile.in (sample found in Makefile.in.gfortran.withext) and set `LIBS` variable properly to indicate the paths where .a and .mod are installed.
+After installing them, edit Makefile.inc (sample found in Makefile.inc.gfortran.withext) and set `LIBS` variable properly to indicate the paths where .a and .mod are installed.
 Then you should rebuild EigenKernel_App with ELPA and EigenExa like below.
 
-    emacs Makefile.in  # Edit $LIBS properly
+    emacs Makefile.inc  # Edit $LIBS properly
     make clean
     make WITH_EIGENEXA=1 WITH_ELPA=1
 
@@ -77,7 +77,8 @@ Names of available solvers are listed below. `general_scalapack` and `general_el
 - eigensx (standard)
 - general_scalapack_eigensx (generalized) -- reduction with PDPOTRF & PDSYGST, solve SEP with eigen_sx; The solver 'B' in our papers [1,2]
 - general_scalapack_eigens (generalized) -- reduction with PDPOTRF & PDSYGST, solve SEP with eigen_s
-- general_scalapacknew_eigens (generalized) -- reduction with PDPOTRF & PDSYNGST
+- general_scalapacknew_eigensx (generalized) -- reduction with PDPOTRF & PDSYNGST, solve SEP with eigen_sx
+- general_scalapacknew_eigens (generalized) -- reduction with PDPOTRF & PDSYNGST, solve SEP with eigen_s
 
 ### solvers need both of ELPA and EigenExa
 - general_elpa_eigensx (generalized) -- reduction with ELPA, solve SEP with eigen_sx; The solver 'G' in our papers [1,2]

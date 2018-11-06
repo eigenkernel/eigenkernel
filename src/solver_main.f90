@@ -26,7 +26,7 @@ contains
     use ek_solver_eigenexa_m, only : setup_distributed_matrix_for_eigenexa, &
          eigen_solver_eigenexa, eigen_solver_eigenk, &
          solve_with_general_scalapack_eigenexa, solve_with_general_scalapack_eigenk, &
-         solve_with_general_scalapacknew_eigenk
+         solve_with_general_scalapacknew_eigenexa, solve_with_general_scalapacknew_eigenk
     use ek_solver_elpa_m
     use ek_solver_elpa_eigenexa_m
 
@@ -94,6 +94,8 @@ contains
       call solve_with_general_elpa_eigenexa(n, proc, matrix_A, eigenpairs, matrix_B)
     case ('general_elpa_eigens')
       call solve_with_general_elpa_eigenk(n, proc, matrix_A, eigenpairs, matrix_B)
+    case ('general_scalapacknew_eigensx')
+      call solve_with_general_scalapacknew_eigenexa(n, proc, matrix_A, eigenpairs, matrix_B)
     case ('general_scalapacknew_eigens')
       call solve_with_general_scalapacknew_eigenk(n, proc, matrix_A, eigenpairs, matrix_B)
     case default

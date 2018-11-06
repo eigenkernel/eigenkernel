@@ -65,6 +65,7 @@ contains
       print *, '  general_elpa2 (generalized)'
       print *, '  general_elpa_eigensx (generalized)'
       print *, '  general_elpa_eigens (generalized)'
+      print *, '  general_scalapacknew_eigensx (generalized)'
       print *, '  general_scalapacknew_eigens (generalized)'
       print *, 'Options are:'
       print *, '  -n <num>  (available with selecting solvers) Compute only &
@@ -165,6 +166,8 @@ contains
     case ('general_elpa_eigensx')
       is_solver_valid = arg%is_generalized_problem
     case ('general_elpa_eigens')
+      is_solver_valid = arg%is_generalized_problem
+    case ('general_scalapacknew_eigensx')
       is_solver_valid = arg%is_generalized_problem
     case ('general_scalapacknew_eigens')
       is_solver_valid = arg%is_generalized_problem

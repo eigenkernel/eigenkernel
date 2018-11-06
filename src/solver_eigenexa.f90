@@ -17,7 +17,7 @@ module ek_solver_eigenexa_m
   private
   public :: setup_distributed_matrix_for_eigenexa, eigen_solver_eigenexa, eigen_solver_eigenk, &
        solve_with_general_scalapack_eigenexa, solve_with_general_scalapack_eigenk, &
-       solve_with_general_scalapacknew_eigenk
+       solve_with_general_scalapacknew_eigenexa, solve_with_general_scalapacknew_eigenk
 
 contains
 
@@ -364,6 +364,82 @@ contains
     call add_event('solve_with_general_scalapack_eigenk:recovery_generalized', time_end - time_start_part)
     call add_event('solve_with_general_scalapack_eigenk', time_end - time_start)
   end subroutine solve_with_general_scalapack_eigenk
+
+
+  subroutine solve_with_general_scalapacknew_eigenexa(n, proc, matrix_A, eigenpairs, matrix_B)
+    integer, intent(in) :: n
+    type(ek_process_t), intent(in) :: proc
+    type(ek_sparse_mat_t), intent(in) :: matrix_A
+    type(ek_sparse_mat_t), intent(in) :: matrix_B
+    type(ek_eigenpairs_types_union_t), intent(out) :: eigenpairs
+
+    integer :: desc_A(desc_size), desc_B(desc_size), desc_A_re(desc_size), ierr
+    double precision, allocatable :: matrix_A_dist(:, :), matrix_B_dist(:, :), matrix_A_redist(:, :)
+    type(ek_eigenpairs_types_union_t) :: eigenpairs_tmp
+    double precision :: time_start, time_start_part, time_end
+
+    time_start = mpi_wtime()
+    time_start_part = time_start
+
+    call setup_distributed_matrix('A', proc, n, n, desc_A, matrix_A_dist)
+    call setup_distributed_matrix('B', proc, n, n, desc_B, matrix_B_dist)
+    call setup_distributed_matrix_for_eigenexa(n, desc_A_re, matrix_A_redist, eigenpairs_tmp)
+    call distribute_global_sparse_matrix(matrix_A, desc_A, matrix_A_dist)
+    call distribute_global_sparse_matrix(matrix_B, desc_B, matrix_B_dist)
+
+    time_end = mpi_wtime()
+    call add_event('solve_with_general_scalapacknew_eigenexa:setup_matrices', time_end - time_start_part)
+    time_start_part = time_end
+
+    call reduce_generalized_new(n, matrix_A_dist, desc_A, matrix_B_dist, desc_B)
+
+    time_end = mpi_wtime()
+    call add_event('solve_with_general_scalapacknew_eigenexa:reduce_generalized_new', time_end - time_start_part)
+    time_start_part = time_end
+
+    call pdgemr2d(n, n, matrix_A_dist, 1, 1, desc_A, matrix_A_redist, 1, 1, desc_A_re, desc_A(context_))
+    deallocate(matrix_A_dist)
+
+    time_end = mpi_wtime()
+    call add_event('solve_with_general_scalapacknew_eigenexa:pdgemr2d_1', time_end - time_start_part)
+    time_start_part = time_end
+
+    call eigen_solver_eigenexa(matrix_A_redist, desc_A_re, n, eigenpairs_tmp, 'L')
+
+    time_end = mpi_wtime()
+    call add_event('solve_with_general_scalapacknew_eigenexa:eigen_solver_eigenexa', time_end - time_start_part)
+    time_start_part = time_end
+
+    deallocate(matrix_A_redist)
+    eigenpairs%type_number = 2
+    allocate(eigenpairs%blacs%values(n), stat = ierr)
+    if (ierr /= 0) then
+      call terminate('solve_with_general_scalapacknew_eigenexa: allocation failed', ierr)
+    end if
+    eigenpairs%blacs%values(:) = eigenpairs_tmp%blacs%values(:)
+    eigenpairs%blacs%desc(:) = eigenpairs_tmp%blacs%desc(:)
+    call setup_distributed_matrix('Eigenvectors', proc, n, n, &
+         eigenpairs%blacs%desc, eigenpairs%blacs%Vectors, desc_A(block_row_))
+
+    time_end = mpi_wtime()
+    call add_event('solve_with_general_scalapacknew_eigenexa:setup_EV', time_end - time_start_part)
+    time_start_part = time_end
+
+    call pdgemr2d(n, n, eigenpairs_tmp%blacs%Vectors, 1, 1, eigenpairs_tmp%blacs%desc, &
+         eigenpairs%blacs%Vectors, 1, 1, eigenpairs%blacs%desc, &
+         eigenpairs_tmp%blacs%desc(context_))
+
+    time_end = mpi_wtime()
+    call add_event('solve_with_general_scalapacknew_eigenexa:pdgemr2d_2', time_end - time_start_part)
+    time_start_part = time_end
+
+    call recovery_generalized(n, n, matrix_B_dist, desc_B, &
+         eigenpairs%blacs%Vectors, eigenpairs%blacs%desc)
+
+    time_end = mpi_wtime()
+    call add_event('solve_with_general_scalapacknew_eigenexa:recovery_generalized', time_end - time_start_part)
+    call add_event('solve_with_general_scalapacknew_eigenexa', time_end - time_start)
+  end subroutine solve_with_general_scalapacknew_eigenexa
 
 
   subroutine solve_with_general_scalapacknew_eigenk(n, proc, matrix_A, eigenpairs, matrix_B)
